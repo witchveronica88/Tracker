@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<title>스위치법 트래커 v3.9 (2026-06-22)</title>
+<title>스위치법 트래커 v4.0 (2026-07-20)</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Noto+Sans+KR:wght@300;400;500;700&display=swap');
 :root {
@@ -101,6 +101,13 @@ input:focus{border-color:var(--accent)}
 .tt-buy{background:var(--buy);color:var(--accent);border:1px solid var(--buy-b)}
 .tt-profit{background:#1a2a3a;color:#6bb5ff;border:1px solid #2a4a6a}
 .tt-cut{background:#3a1a00;color:#ffaa44;border:1px solid #5a3a00}
+.tt-virtual{background:#241a3a;color:#b58cff;border:1px solid #4a2a7a}
+.rao-row.ext{background:#241a3a44}
+.rao-row.ext .rao-buy{color:#b58cff}
+.ext-divider{font-size:10px;color:#b58cff;text-align:center;padding:5px 0;border-bottom:1px solid var(--bg3);letter-spacing:.05em}
+.exhaust-badge{border-radius:10px;padding:11px 13px;margin-bottom:10px;font-size:12px;line-height:1.7}
+.exhaust-hong{background:#241a3a;border:1px solid #4a2a7a;color:#cbb0ff}
+.exhaust-rich{background:#2a2010;border:1px solid #5a4a20;color:var(--accent3)}
 .tpnl{font-family:var(--mono);font-size:12px;text-align:right}
 
 /* 종목 카드 */
@@ -126,7 +133,7 @@ input:focus{border-color:var(--accent)}
   <div class="hdr">
     <div class="hdr-row">
       <span class="home-title">SWITCH</span>
-      <span class="ver">v3.9</span>
+      <span class="ver">v4.0</span>
     </div>
   </div>
   <div class="pg on">
@@ -174,6 +181,8 @@ input:focus{border-color:var(--accent)}
         </div>
       </div>
 
+      <div id="exhaust-note"></div>
+
       <div class="stabs">
         <button class="stab on" onclick="goTblTab('ud',this)">업다운법</button>
         <button class="stab"    onclick="goTblTab('dd',this)">떨법</button>
@@ -213,6 +222,8 @@ input:focus{border-color:var(--accent)}
           <button class="btn btn-buy"  onclick="addTrade('ud','매수')">매수 체결</button>
           <button class="btn btn-sell" onclick="addTrade('ud','매도')">매도 체결</button>
         </div>
+        <button class="btn" id="ud-virtual-btn" style="display:none;width:100%;margin-top:8px;background:#241a3a;border:1px solid #4a2a7a;color:#b58cff" onclick="addTrade('ud','가상매수')">가상매수 (샀다치고)</button>
+        <div id="ud-virtual-hint" style="display:none;font-size:10px;color:var(--text3);margin-top:6px;line-height:1.6">※ 시드 소진 후 매수 신호가 왔을 때 사용해요. 잔금·보유는 그대로 두고 Pot만 +1 되어 테이블이 가격을 따라갑니다.</div>
       </div>
       <div class="mets">
         <div class="met"><div class="met-lbl">보유수량</div><div class="met-val" id="ud-qty-d">—</div></div>
@@ -270,6 +281,23 @@ input:focus{border-color:var(--accent)}
     <div class="mets">
       <div class="met"><div class="met-lbl">현 사이클 수익</div><div class="met-val" id="cfg-profit">—</div></div>
     </div>
+    <div class="sec">시드 소진 대응 모드</div>
+    <div class="card">
+      <div class="stabs" style="margin-bottom:10px">
+        <button class="stab" id="mode-hong" onclick="setExhaustMode('hong')">홍길동씨 (원칙)</button>
+        <button class="stab" id="mode-rich" onclick="setExhaustMode('rich')">돈많음씨 (추가시드)</button>
+      </div>
+      <div id="mode-desc-hong" style="font-size:11px;color:var(--text3);line-height:1.7">
+        시드(전체 분할) 소진 후 — 매수는 <b style="color:#b58cff">가상매수(샀다치고)</b>로 기록해요. 잔금 차감 없이 Pot만 +1 되어 테이블이 가격을 따라가고, 매도(손절)는 실제 체결로 입력해요. 떨법 매도 기준은 변경 없음.
+      </div>
+      <div id="mode-desc-rich" style="display:none">
+        <div style="font-size:11px;color:var(--text3);line-height:1.7;margin-bottom:10px">
+          시드 소진 후에도 16, 17, … 포랭으로 <b style="color:var(--accent3)">실제 매수를 계속</b>해요. 매수 테이블이 아래 최대 포랭까지 연장됩니다. 추가 자금이 필요해요.
+        </div>
+        <div><span class="lbl">최대 포랭 (권장 25)</span><input type="number" id="cfg-maxdiv" oninput="saveMaxDiv()"></div>
+      </div>
+    </div>
+
     <div class="sec">사이클 관리</div>
     <div class="card">
       <div style="font-size:12px;color:var(--text2);line-height:1.7;margin-bottom:12px">
@@ -348,6 +376,7 @@ function openTicker(id){
   document.getElementById('tbl-empty').style.display='block';
   // 매수매도표 탭으로
   goTab('table',document.querySelectorAll('#screen-ticker .tab')[0]);
+  updateModeUI();
   buildTbl();
   renderTrades('ud');renderTrades('dd');
   window.scrollTo(0,0);
@@ -376,6 +405,20 @@ function goTblTab(name,btn){
 }
 
 function cur(){return db.curId?db.tickers[db.curId]:null;}
+
+// ── 업다운 상태 계산 (가상매수 포함 공용 헬퍼) ──
+// 매수: 보유+qty, Pot+1 / 가상매수: Pot만 +1 (보유·잔금 무변) / 매도: 보유−qty, Pot−1, 보유 0이면 전체 리셋
+function udState(trades){
+  let held=0,pot=0,virt=0;
+  (trades||[]).forEach(x=>{
+    if(x.type==='매수'){held+=x.qty;pot++;}
+    else if(x.type==='가상매수'){pot++;virt++;}
+    else{held=Math.max(0,held-x.qty);pot=Math.max(0,pot-1);if(held<=0){pot=0;virt=0;}}
+  });
+  return {held,pot,virt,realPot:Math.max(0,pot-virt)};
+}
+function exhaustModeOf(t){return (t&&t.exhaustMode)==='rich'?'rich':'hong';}
+function maxDivOf(t){return Math.max(t&&t.div||15,(t&&t.maxDiv)||25);}
 
 // ── 종목 목록 ──
 function renderTickerList(){
@@ -412,7 +455,7 @@ function addTicker(){
   const memo=document.getElementById('m-memo').value.trim();
   if(!ticker)return;
   const id=ticker+'_'+Date.now();
-  db.tickers[id]={ticker,seed,div,pot:0,memo,ud:[],dd:[]};
+  db.tickers[id]={ticker,seed,div,pot:0,memo,ud:[],dd:[],exhaustMode:'hong',maxDiv:25};
   save();
   document.getElementById('modal-bg').classList.remove('open');
   ['m-ticker','m-seed','m-div','m-memo'].forEach(i=>document.getElementById(i).value='');
@@ -428,7 +471,7 @@ function deleteTicker(){
 function startNewCycle(){
   const t=cur();if(!t)return;
   // 현재 보유 확인
-  let udHeld=0;(t.ud||[]).forEach(x=>{udHeld+=x.type==='매수'?x.qty:-x.qty;});
+  const udHeld=udState(t.ud).held;
   let ddHeld=0;(t.dd||[]).forEach(x=>{ddHeld+=x.type==='매수'?x.qty:-x.qty;});
   if(udHeld>0||ddHeld>0){
     if(!confirm(`아직 보유분이 남아있어요.\n업다운 ${udHeld}주, 떨법 ${ddHeld}주\n\n그래도 새 사이클을 시작할까요?\n(남은 보유분 기록은 정리됩니다)`))return;
@@ -463,7 +506,7 @@ function startNewCycle(){
 }
 
 // ── 매수가 테이블 ──
-function makeTable(lp,unit,div,isUd,heldPots){
+function makeTable(lp,unit,div,isUd,heldPots,maxRows){
   // 라오어 공식 (엑셀 분석 확정):
   // D16 = 잔금 / 분할 (1회 투입금액 기준)
   // 1번 매수가: 업다운=LP*(1-0.2%*20/div*보유포트), 떨법=LP
@@ -486,12 +529,13 @@ function makeTable(lp,unit,div,isUd,heldPots){
     firstPrice=Math.round(lp*100)/100;
   }
   const firstQty=Math.max(1,Math.floor(D16/firstPrice));
-  rows.push({price:firstPrice,qty:firstQty,top:true});
-  // 2번~: D16 / 누적개수합
+  rows.push({price:firstPrice,qty:firstQty,top:true,ext:false});
+  // 2번~: D16 / 누적개수합. maxRows(돈많음씨)만큼 연장, div 초과분은 ext 표시
+  const totalRows=Math.max(div,maxRows||div);
   let cumQty=firstQty;
-  for(let n=2;n<=div;n++){
+  for(let n=2;n<=totalRows;n++){
     cumQty+=1;
-    rows.push({price:Math.round(D16/cumQty*100)/100,qty:1,top:false});
+    rows.push({price:Math.round(D16/cumQty*100)/100,qty:1,top:false,ext:n>div});
   }
   return rows;
 }
@@ -508,12 +552,9 @@ function buildTbl(){
   // LP를 오늘 날짜와 함께 저장 (같은 날 재방문 시 자동 복원)
   if(t){t.lp=lp;t.lpDate=today();save();}
 
-  // ── 업다운 Pot/보유 계산 (테이블은 P+R 구한 뒤 생성) ──
-  let udHeld=0, udPot=0;
-  (t&&t.ud?t.ud:[]).forEach(x=>{
-    if(x.type==='매수'){udHeld+=x.qty;udPot++;}
-    else {udHeld=Math.max(0,udHeld-x.qty);udPot=Math.max(0,udPot-1);if(udHeld<=0)udPot=0;}
-  });
+  // ── 업다운 Pot/보유 계산 (가상매수 포함, 테이블은 P+R 구한 뒤 생성) ──
+  const _us=udState(t&&t.ud?t.ud:[]);
+  const udHeld=_us.held, udPot=_us.pot, udVirt=_us.virt;
   // 매도 수량 = 보유 ÷ Pot 내림 (라오어 E19 공식)
   const udSellQty=udPot>0?Math.floor(udHeld/udPot):0;
 
@@ -545,15 +586,41 @@ function buildTbl(){
 
   // ── 업다운 테이블 생성 (1번 매수가 하락폭 = P+R 기준) ──
   const PR=udPot+ddRank;
-  const udRows=makeTable(lp,unit,div,true,PR);
+  const mode=exhaustModeOf(t);
+  const mDiv=maxDivOf(t);
+  const udRows=makeTable(lp,unit,div,true,PR, mode==='rich'?mDiv:div);
   const udBody=document.getElementById('ud-body');udBody.innerHTML='';
+  let extShown=false;
   udRows.forEach((r,i)=>{
+    if(r.ext&&!extShown){
+      extShown=true;
+      const dv=document.createElement('div');dv.className='ext-divider';
+      dv.textContent=`── 추가 시드 구간 (${div+1}~${mDiv}포랭) ──`;
+      udBody.appendChild(dv);
+    }
     const sellP=i===0&&udHeld>0?`$${lp.toFixed(2)}`:'';
     const sellQ=i===0&&udSellQty>0?`${udSellQty}`:'';
-    const d=document.createElement('div');d.className='rao-row';
+    const d=document.createElement('div');d.className='rao-row'+(r.ext?' ext':'');
     d.innerHTML=`<span class="rao-buy${r.top?' top':''}">$${r.price.toFixed(2)}</span><span class="rao-bq">${r.qty}</span><span class="rao-sell">${sellP}</span><span class="rao-sq">${sellQ}</span>`;
     udBody.appendChild(d);
   });
+
+  // ── 시드 소진 안내 배지 ──
+  const noteEl=document.getElementById('exhaust-note');
+  if(noteEl){
+    if(PR>=div){
+      if(mode==='hong'){
+        noteEl.innerHTML=`<div class="exhaust-badge exhaust-hong"><b>시드 소진 구간 (홍길동씨)</b> — P+R ${PR}/${div}. 매수 신호는 거래기록에서 <b>가상매수(샀다치고)</b>로 입력하고, 매도(손절)는 실제 체결로 입력하세요.${udVirt>0?` 현재 가상 Pot ${udVirt}개.`:''}</div>`;
+      } else {
+        const overPots=Math.max(0,PR-div);
+        noteEl.innerHTML=`<div class="exhaust-badge exhaust-rich"><b>추가 시드 구간 (돈많음씨)</b> — P+R ${PR}/${div}, 최대 ${mDiv}포랭. 초과 매수 ${overPots}칸 × 1회 $${unit.toLocaleString()} = 추가 투입 약 $${(overPots*unit).toLocaleString()}. 실제 매수를 계속하세요.</div>`;
+      }
+    } else if(mode==='hong'&&udVirt>0){
+      noteEl.innerHTML=`<div class="exhaust-badge exhaust-hong">가상 Pot ${udVirt}개 보유 중 — 매도가 나가면 Pot이 줄고, 보유 0이 되면 사이클이 리셋돼요.</div>`;
+    } else {
+      noteEl.innerHTML='';
+    }
+  }
 
   const ddBodyEl=document.getElementById('dd-body');ddBodyEl.innerHTML='';
   // 1) 현재 테이블 매수가에 없는 보유 회차 먼저 표시 (과거에 더 비싸게 산 것들)
@@ -592,6 +659,14 @@ function addTrade(track,type){
   const priceEl=document.getElementById(track+'-price');
   const qtyEl=document.getElementById(track+'-qty');
   const price=parseFloat(priceEl.value),qty=parseFloat(qtyEl.value);
+  if(type==='가상매수'){
+    // 샀다치고: 가격만 필수. 보유·잔금 무변, Pot만 +1 (udState에서 처리)
+    if(!price)return;
+    t[track].push({id:Date.now(),date:dateEl.value||today(),type:'가상매수',price,qty:qty||0});
+    save();renderTrades(track);renderSettings();buildTbl();
+    priceEl.value='';qtyEl.value='';dateEl.value=today();
+    return;
+  }
   if(!price||!qty)return;
   let label=type;
   if(type==='매도'){
@@ -607,9 +682,9 @@ function addTrade(track,type){
       Object.keys(held).forEach(k=>{ if(held[k]>0) minBuy=Math.min(minBuy,parseFloat(k)); });
       label = price>=minBuy ? '익절' : '손절';
     } else {
-      // 업다운: 평단 기준
+      // 업다운: 평단 기준 (가상매수는 평단에 미반영)
       let avg=0,q=0;
-      (t[track]||[]).forEach(x=>{if(x.type==='매수'){const nq=q+x.qty;avg=(avg*q+x.price*x.qty)/nq;q=nq;}else q=Math.max(0,q-x.qty);});
+      (t[track]||[]).forEach(x=>{if(x.type==='매수'){const nq=q+x.qty;avg=(avg*q+x.price*x.qty)/nq;q=nq;}else if(x.type!=='가상매수')q=Math.max(0,q-x.qty);});
       label=price>=avg?'익절':'손절';
     }
   }
@@ -633,13 +708,13 @@ function renderTrades(track){
   // 전체 누적손익
   let _tp=0;
   if(track==='dd'){ _tp=ddRealizedPnl(t.dd||[]).total; }
-  else { let _a=0,_q=0; t[track].forEach(x=>{if(x.type==='매수'){const nq=_q+x.qty;_a=(_a*_q+x.price*x.qty)/nq;_q=nq;}else{_tp+=(x.price-_a)*x.qty;_q=Math.max(0,_q-x.qty);}}); }
+  else { let _a=0,_q=0; t[track].forEach(x=>{if(x.type==='매수'){const nq=_q+x.qty;_a=(_a*_q+x.price*x.qty)/nq;_q=nq;}else if(x.type!=='가상매수'){_tp+=(x.price-_a)*x.qty;_q=Math.max(0,_q-x.qty);}}); }
   let cs=0,_q2=0;
-  t[track].forEach((x,i)=>{if(x.type==='매수')_q2+=x.qty;else{_q2=Math.max(0,_q2-x.qty);if(_q2<=0){cs=i+1;_q2=0;}}});
+  t[track].forEach((x,i)=>{if(x.type==='매수')_q2+=x.qty;else if(x.type!=='가상매수'){_q2=Math.max(0,_q2-x.qty);if(_q2<=0){cs=i+1;_q2=0;}}});
   const cyc=t[track].slice(cs);
   let _ca=0,_cq=0,_cp=0;
   if(track==='dd'){ const r=ddRealizedPnl(cyc); _cp=r.total; _cq=r.heldQty; _ca=r.heldAvg; }
-  else { cyc.forEach(x=>{if(x.type==='매수'){const nq=_cq+x.qty;_ca=(_ca*_cq+x.price*x.qty)/nq;_cq=nq;}else{_cp+=(x.price-_ca)*x.qty;_cq=Math.max(0,_cq-x.qty);}}); }
+  else { cyc.forEach(x=>{if(x.type==='매수'){const nq=_cq+x.qty;_ca=(_ca*_cq+x.price*x.qty)/nq;_cq=nq;}else if(x.type!=='가상매수'){_cp+=(x.price-_ca)*x.qty;_cq=Math.max(0,_cq-x.qty);}}); }
   list.innerHTML='';
   if(track==='dd'){
     const rowP=ddRowPnls(t.dd||[]);
@@ -655,14 +730,19 @@ function renderTrades(track){
     t[track].forEach(x=>{
       let pnl=null;
       if(x.type==='매수'){const nq=__q+x.qty;__a=(__a*__q+x.price*x.qty)/nq;__q=nq;}
+      else if(x.type==='가상매수'){/* 보유·평단 무변 */}
       else{pnl=(x.price-__a)*x.qty;__q=Math.max(0,__q-x.qty);}
       const isCut=x.type==='손절';
+      const isVirt=x.type==='가상매수';
+      const badgeCls=x.type==='매수'?'tt-buy':isVirt?'tt-virtual':isCut?'tt-cut':'tt-profit';
+      const qtyTxt=isVirt?(x.qty>0?` × ${x.qty}주(가상)`:' (가상)'):` × ${x.qty}주`;
       const row=document.createElement('div');row.className='tlog';
-      row.innerHTML=`<span class="ttype ${x.type==='매수'?'tt-buy':isCut?'tt-cut':'tt-profit'}">${x.type}</span><div><div style="font-family:var(--mono);font-size:12px">$${x.price.toFixed(2)} × ${x.qty}주</div><div style="font-size:10px;color:var(--text3)">${x.date}</div></div><div class="tpnl ${pnl!==null?(pnl>=0?'pos':'neg'):''}">${pnl!==null?(pnl>=0?'+':'-')+'$'+Math.abs(pnl).toFixed(2):''}</div><button class="btn-del" onclick="removeTrade('${track}',${x.id})">×</button>`;
+      row.innerHTML=`<span class="ttype ${badgeCls}">${x.type}</span><div><div style="font-family:var(--mono);font-size:12px">$${x.price.toFixed(2)}${qtyTxt}</div><div style="font-size:10px;color:var(--text3)">${x.date}</div></div><div class="tpnl ${pnl!==null?(pnl>=0?'pos':'neg'):''}">${pnl!==null?(pnl>=0?'+':'-')+'$'+Math.abs(pnl).toFixed(2):''}</div><button class="btn-del" onclick="removeTrade('${track}',${x.id})">×</button>`;
       list.appendChild(row);
     });
   }
-  setMet(track+'-qty-d',_cq.toFixed(0)+'주','');
+  const _virtN=track==='ud'?udState(t.ud).virt:0;
+  setMet(track+'-qty-d',_cq.toFixed(0)+'주'+(_virtN>0?` (가상${_virtN})`:''),'');
   setMet(track+'-avg',_cq>0?'$'+_ca.toFixed(2):'—','');
   setMet(track+'-cpnl',(_cp>=0?'+':'-')+'$'+Math.abs(_cp).toFixed(2),_cp>=0?'pos':'neg');
   setMet(track+'-tpnl',(_tp>=0?'+':'-')+'$'+Math.abs(_tp).toFixed(2),_tp>=0?'pos':'neg');
@@ -722,8 +802,34 @@ function renderSettings(){
   const t=cur();if(!t)return;
   document.getElementById('cfg-seed').value=t.seed;
   document.getElementById('cfg-div').value=t.div;
+  document.getElementById('cfg-maxdiv').value=t.maxDiv||25;
+  updateModeUI();
   updateCfg();
   renderCycleHistory();
+}
+function updateModeUI(){
+  const t=cur();if(!t)return;
+  const mode=exhaustModeOf(t);
+  document.getElementById('mode-hong').className='stab'+(mode==='hong'?' on':'');
+  document.getElementById('mode-rich').className='stab'+(mode==='rich'?' on':'');
+  document.getElementById('mode-desc-hong').style.display=mode==='hong'?'block':'none';
+  document.getElementById('mode-desc-rich').style.display=mode==='rich'?'block':'none';
+  // 가상매수 버튼: 홍길동씨 모드에서만 노출
+  const vb=document.getElementById('ud-virtual-btn');
+  const vh=document.getElementById('ud-virtual-hint');
+  if(vb){vb.style.display=mode==='hong'?'block':'none';}
+  if(vh){vh.style.display=mode==='hong'?'block':'none';}
+}
+function setExhaustMode(mode){
+  const t=cur();if(!t)return;
+  t.exhaustMode=mode;save();
+  updateModeUI();updateCfg();buildTbl();
+}
+function saveMaxDiv(){
+  const t=cur();if(!t)return;
+  const v=parseInt(document.getElementById('cfg-maxdiv').value);
+  t.maxDiv=(v&&v>t.div)?v:25;save();
+  updateCfg();buildTbl();
 }
 function renderCycleHistory(){
   const t=cur();if(!t)return;
@@ -784,21 +890,16 @@ function saveCfg(){
 }
 function calcPot(id,track){
   const t=db.tickers[id];if(!t||!t[track])return 0;
-  let held=0,pot=0;
-  t[track].forEach(x=>{if(x.type==='매수'){held+=x.qty;pot++;}else{held=Math.max(0,held-x.qty);pot=Math.max(0,pot-1);if(held<=0)pot=0;}});
-  return pot;
+  return udState(t[track]).pot;
 }
 function updateCfg(){
   const t=cur();if(!t)return;
   const unit=t.seed/Math.max(t.div,1);
   const tp=calcTotal(db.curId,'ud')+calcTotal(db.curId,'dd');
 
-  // 업다운법: 보유주식·Pot
-  let udHeld=0,udPot=0;
-  (t.ud||[]).forEach(x=>{
-    if(x.type==='매수'){udHeld+=x.qty;udPot++;}
-    else{udHeld=Math.max(0,udHeld-x.qty);udPot=Math.max(0,udPot-1);if(udHeld<=0)udPot=0;}
-  });
+  // 업다운법: 보유주식·Pot (가상매수 포함)
+  const _cus=udState(t.ud);
+  const udHeld=_cus.held, udPot=_cus.pot, udVirt=_cus.virt, udRealPot=_cus.realPot;
 
   // 떨법: 보유주식·Rank(매수가 종류 수, 매수매도표와 동일 로직)
   let ddHeld=0;
@@ -823,12 +924,19 @@ function updateCfg(){
   const ddRank=Object.keys(ddHoldByPrice).length;
 
   const totalShares=udHeld+ddHeld;   // 주식 총 갯수 (업다운+떨법 합산 보유)
-  const PR=udPot+ddRank;             // 시드 전체 15칸 중 실제 사용 칸 수
+  const PR=udPot+ddRank;             // 시드 전체 칸 중 사용 칸 수 (가상 포함)
+  const realPR=udRealPot+ddRank;     // 실제 자금 투입 칸 수
+  const mode=exhaustModeOf(t);
+  const effDiv=mode==='rich'?maxDivOf(t):t.div;
 
   document.getElementById('cfg-unit').textContent='$'+unit.toFixed(0);
   document.getElementById('cfg-shares').textContent=totalShares+'주';
-  document.getElementById('cfg-pr-d').textContent=PR+' / '+t.div;
-  document.getElementById('cfg-used').textContent='$'+(PR*unit).toFixed(0);
+  document.getElementById('cfg-pr-d').textContent=PR+' / '+effDiv+(udVirt>0?` (가상${udVirt})`:'');
+  const usedAmt=realPR*unit;
+  const usedEl=document.getElementById('cfg-used');
+  usedEl.textContent='$'+usedAmt.toFixed(0);
+  usedEl.className='met-val'+(usedAmt>t.seed?' warn':'');
+  if(usedAmt>t.seed){usedEl.textContent+=` (+$${(usedAmt-t.seed).toFixed(0)})`;}
   const pe=document.getElementById('cfg-profit');
   pe.textContent=(tp>=0?'+':'-')+'$'+Math.abs(tp).toFixed(2);
   pe.className='met-val '+(tp>=0?'pos':'neg');
@@ -837,7 +945,7 @@ function calcTotal(id,track){
   const t=db.tickers[id];if(!t||!t[track])return 0;
   if(track==='dd') return ddRealizedPnl(t.dd||[]).total;
   let a=0,q=0,p=0;
-  t[track].forEach(x=>{if(x.type==='매수'){const nq=q+x.qty;a=(a*q+x.price*x.qty)/nq;q=nq;}else{p+=(x.price-a)*x.qty;q=Math.max(0,q-x.qty);}});
+  t[track].forEach(x=>{if(x.type==='매수'){const nq=q+x.qty;a=(a*q+x.price*x.qty)/nq;q=nq;}else if(x.type!=='가상매수'){p+=(x.price-a)*x.qty;q=Math.max(0,q-x.qty);}});
   return p;
 }
 
