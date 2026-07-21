@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<title>스위치법 트래커 v5.1 (2026-07-21)</title>
+<title>스위치법 트래커 v5.0 (2026-07-21)</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+KR:wght@300;400;500;600;700&display=swap');
 :root{
@@ -161,7 +161,7 @@ input:focus,textarea:focus{border-color:var(--brand);background:#212A38}
   <div class="hdr">
     <div class="hdr-row">
       <span class="home-title">SWITCH</span>
-      <span class="ver">v5.1</span>
+      <span class="ver">v5.0</span>
       <span id="sync-dot" style="margin-left:auto;font-size:10px;font-family:var(--mono);color:var(--accent)">● 저장됨</span>
     </div>
   </div>
@@ -356,7 +356,7 @@ input:focus,textarea:focus{border-color:var(--brand);background:#212A38}
   <div class="modal">
     <div class="modal-title">데이터 백업 · 이전</div>
     <div class="modal-note">
-      기록은 자동으로 저장되고, 이 기기에도 사본이 남아요. 다른 기기나 다른 앱으로 <b>모든 종목</b>을 한 번에 옮길 때 쓰면 돼요.
+      기록은 자동으로 저장돼요. 다른 기기나 다른 대화의 앱으로 <b>모든 종목</b>을 한 번에 옮길 때만 쓰면 돼요.
     </div>
     <button class="btn-new" onclick="exportData()">전체 백업 복사하기</button>
     <textarea id="import-text" placeholder="여기에 백업 내용을 붙여넣으세요" style="height:96px;font-size:12px"></textarea>
@@ -390,45 +390,41 @@ input:focus,textarea:focus{border-color:var(--brand);background:#212A38}
 const KEY='switch_v8';
 let db={tickers:{},curId:null};
 
-// ── 저장소: 클라우드가 있으면 클라우드, 없으면 브라우저 저장 ──
-// 이 파일은 서버·API 없이 혼자 동작해요. GitHub Pages 등 어디에 올려도 그대로 쓸 수 있어요.
-const hasCloud=()=>{try{return !!(window.storage&&window.storage.get&&window.storage.set);}catch(e){return false;}};
+// ── 클라우드 저장 (계정에 저장 · 기기 간 공유 · 자동 백업) ──
 let saveTimer=null,saveBusy=false,savePending=false;
 function setSync(state){
   const el=document.getElementById('sync-dot');if(!el)return;
-  const local=!hasCloud();
   const m={loading:['◌','불러오는 중','var(--text2)'],saving:['●','저장 중','var(--brand)'],
-           ok:['●',local?'이 기기에 저장됨':'저장됨','var(--ok)'],err:['▲','저장 실패','var(--accent2)']};
+           ok:['●','저장됨','var(--ok)'],err:['▲','저장 실패','var(--accent2)']};
   const v=m[state]||m.ok;
   el.textContent=v[0]+' '+v[1];el.style.color=v[2];
 }
 async function cloudWrite(){
   if(saveBusy){savePending=true;return;}
   saveBusy=true;
-  const payload=JSON.stringify({tickers:db.tickers});
   try{
-    if(hasCloud())await window.storage.set(KEY,payload);
-    try{localStorage.setItem(KEY,payload);}catch(_){}   // 항상 로컬에도 사본 유지
+    await window.storage.set(KEY,JSON.stringify({tickers:db.tickers}));
     setSync('ok');
   }catch(e){
-    console.error('save failed',e);
-    let localOk=false;
-    try{localStorage.setItem(KEY,payload);localOk=true;}catch(_){}
-    setSync(localOk?'ok':'err');
+    console.error('save failed',e);setSync('err');
+    try{localStorage.setItem(KEY+'_backup',JSON.stringify({tickers:db.tickers}));}catch(_){}
   }
   saveBusy=false;
   if(savePending){savePending=false;cloudWrite();}
 }
 const save=()=>{setSync('saving');clearTimeout(saveTimer);saveTimer=setTimeout(cloudWrite,400);};
+// 즉시 저장 — 종목 추가/삭제처럼 중요한 동작 직후, 화면을 벗어나도 유실되지 않도록 지연 없이 바로 씀
+const saveNow=()=>{clearTimeout(saveTimer);setSync('saving');cloudWrite();};
+// 화면을 벗어나거나(다른 탭 전환, 앱 백그라운드) 아티팩트가 닫히기 직전에 대기 중인 저장을 강제로 흘려보냄
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'&&saveTimer)saveNow();});
+window.addEventListener('pagehide',()=>{if(saveTimer)saveNow();});
 async function boot(){
   setSync('loading');
   let loaded=null;
-  if(hasCloud()){
-    try{
-      const r=await window.storage.get(KEY);
-      if(r&&r.value)loaded=JSON.parse(r.value);
-    }catch(e){/* 최초 실행 — 저장된 데이터 없음 */}
-  }
+  try{
+    const r=await window.storage.get(KEY);
+    if(r&&r.value)loaded=JSON.parse(r.value);
+  }catch(e){/* 최초 실행 — 저장된 데이터 없음 */}
   if(!loaded){
     try{const o=localStorage.getItem(KEY);if(o)loaded=JSON.parse(o);}catch(_){}
   }
@@ -585,7 +581,7 @@ function addTicker(){
   if(!ticker)return;
   const id=ticker+'_'+Date.now();
   db.tickers[id]={ticker,seed,div,pot:0,memo,ud:[],dd:[],exhaustMode:'hong',maxDiv:25};
-  save();
+  saveNow();
   document.getElementById('modal-bg').classList.remove('open');
   ['m-ticker','m-seed','m-div','m-memo'].forEach(i=>document.getElementById(i).value='');
   openTicker(id);
@@ -593,7 +589,7 @@ function addTicker(){
 function deleteTicker(){
   if(!db.curId)return;
   confirmAction('del','이 종목의 모든 거래 기록이 삭제됩니다. 계속할까요?',()=>{
-    delete db.tickers[db.curId];save();
+    delete db.tickers[db.curId];saveNow();
     goHome();
   });
 }
@@ -631,7 +627,7 @@ function doNewCycle(t){
   }
   t.carryover=(t.carryover||0)+udTotal+ddTotal;
   t.ud=[];t.dd=[];
-  save();
+  saveNow();
   renderTrades('ud');renderTrades('dd');renderSettings();buildTbl();
   showBackupStatus('✓ 새 사이클이 시작됐어요. 이전 손익은 [사이클 기록]에 저장됐어요.',true);
 }
@@ -790,18 +786,22 @@ function buildTbl(){
 // ── 오늘 걸 주문 (히어로) ──
 function renderOrder(o){
   const el=document.getElementById('order-out');if(!el)return;
-  const rows=[];
-  rows.push({who:'업다운',act:'매수',price:o.udRows[0].price,qty:o.udRows[0].qty});
-  if(o.udHeld>0&&o.udSellQty>0) rows.push({who:'',act:'매도',price:o.lp,qty:o.udSellQty});
-  rows.push({who:'떨법',act:'매수',price:o.ddRows[0].price,qty:o.ddRows[0].qty});
-  const lots=Object.keys(o.ddLots).map(parseFloat).sort((a,b)=>a-b);
-  if(lots.length) rows.push({who:'',act:'매도',price:lots[0],qty:o.ddLots[lots[0].toFixed(2)],
-    more:lots.length>1?`외 ${lots.length-1}회차`:''});
+  const buyMap={},sellMap={};
+  const addBuy=(p,q)=>{const k=p.toFixed(2);buyMap[k]=(buyMap[k]||0)+q;};
+  const addSell=(p,q)=>{const k=p.toFixed(2);sellMap[k]=(sellMap[k]||0)+q;};
+  o.udRows.slice(0,3).forEach(r=>addBuy(r.price,r.qty));
+  o.ddRows.slice(0,3).forEach(r=>addBuy(r.price,r.qty));
+  if(o.udHeld>0&&o.udSellQty>0) addSell(o.lp,o.udSellQty);
+  Object.keys(o.ddLots).forEach(k=>addSell(parseFloat(k),o.ddLots[k]));
+  const buyRows=Object.keys(buyMap).map(parseFloat).sort((a,b)=>b-a).map(p=>({act:'매수',price:p,qty:buyMap[p.toFixed(2)]}));
+  const sellRows=Object.keys(sellMap).map(parseFloat).sort((a,b)=>a-b).map(p=>({act:'매도',price:p,qty:sellMap[p.toFixed(2)]}));
+  const rows=[...buyRows,...sellRows];
+  if(!rows.length){el.innerHTML='<div class="order-none">오늘 걸 주문이 없어요</div>';return;}
   el.innerHTML=rows.map(r=>
     `<div class="order-line">
-       <span class="order-who">${r.who}</span>
+       <span class="order-who"></span>
        <span><span class="order-act ${r.act==='매수'?'act-buy':'act-sell'}">${r.act}</span><span class="order-price">$${r.price.toFixed(2)}</span></span>
-       <span class="order-qty">${r.qty}주${r.more?' <span style="color:var(--text3)">'+r.more+'</span>':''}</span>
+       <span class="order-qty">${r.qty}주</span>
      </div>`).join('');
 }
 
@@ -911,7 +911,7 @@ function addTradeCore(track,type,price,qty,date){
   if(type==='가상매수'){
     if(!price)return false;
     t[track].push({id:Date.now(),date:date||today(),type:'가상매수',price,qty:qty||0});
-    save();renderTrades(track);renderSettings();buildTbl();
+    saveNow();renderTrades(track);renderSettings();buildTbl();
     return true;
   }
   if(!price||!qty)return false;
@@ -934,7 +934,7 @@ function addTradeCore(track,type,price,qty,date){
     }
   }
   t[track].push({id:Date.now(),date:date||today(),type:label,price,qty});
-  save();renderTrades(track);renderSettings();buildTbl();
+  saveNow();renderTrades(track);renderSettings();buildTbl();
   return true;
 }
 
@@ -951,7 +951,7 @@ function addTrade(track,type){
 function removeTrade(track,id){
   const t=cur();if(!t)return;
   t[track]=t[track].filter(x=>x.id!==id);
-  save();renderTrades(track);renderSettings();buildTbl();
+  saveNow();renderTrades(track);renderSettings();buildTbl();
 }
 function renderTrades(track){
   const t=cur();
