@@ -10,13 +10,13 @@
 :root{
   --bg:#0E1219;--bg2:#151B25;--bg3:#1D2531;--border:#28323F;--border2:#354254;
   --brand:#E8B44A;
-  --accent:#FF5165;   /* 상승·이익 (국내 증시 관행) */
-  --accent2:#4A90FF;  /* 하락·손실 */
+  --accent:#3CC28B;   /* 상승·이익 (미국 증시 관행: 초록) */
+  --accent2:#FF5165;  /* 하락·손실 (미국 증시 관행: 빨강) */
   --accent3:#E8B44A;
   --ok:#3CC28B;--violet:#A78BFA;
   --text:#EAEEF5;--text2:#8D97A8;--text3:#5B6577;
-  --buy:#2A2314;--buy-b:#4A3D1E;
-  --sell:#12233F;--sell-b:#1E3A63;
+  --buy:#3A1520;--buy-b:#5A2438;   /* 매수 = 미국 증시 하락색(빨강) 계열 */
+  --sell:#123A2C;--sell-b:#1E5A45; /* 매도 = 미국 증시 상승색(초록) 계열 */
   --mono:'IBM Plex Mono',ui-monospace,monospace;
   --sans:'IBM Plex Sans KR',system-ui,-apple-system,sans-serif;
 }
@@ -57,14 +57,14 @@ input:focus,textarea:focus{border-color:var(--brand);background:#212A38}
 
 .btn{border:none;border-radius:9px;font-family:var(--sans);font-size:14px;font-weight:600;cursor:pointer;padding:11px 16px;transition:.15s}
 .btn:active{transform:scale(.98)}
-.btn-buy{background:var(--buy);border:1px solid var(--buy-b);color:var(--brand);width:100%}
-.btn-sell{background:var(--sell);border:1px solid var(--sell-b);color:#7FB0FF;width:100%}
+.btn-buy{background:var(--buy);border:1px solid var(--buy-b);color:var(--accent);width:100%}
+.btn-sell{background:var(--sell);border:1px solid var(--sell-b);color:var(--ok);width:100%}
 .btn-del{background:transparent;border:none;color:var(--text3);font-size:17px;padding:4px 6px;cursor:pointer}
 .btn-new{background:var(--brand);color:#1A1206;border:none;border-radius:11px;padding:13px;font-size:14px;font-weight:700;width:100%;cursor:pointer;margin-bottom:10px;font-family:var(--sans)}
 .btn-new:active{filter:brightness(.92)}
 .btn-ghost{background:transparent;border:1px solid var(--border);border-radius:9px;color:var(--text2);padding:9px 14px;font-size:12px;font-weight:500;cursor:pointer;font-family:var(--sans)}
 .btn-ghost:active{background:var(--bg3)}
-.btn-danger{background:transparent;border:1px solid var(--sell-b);color:#7FB0FF;border-radius:9px;padding:9px 14px;font-size:12px;font-weight:500;cursor:pointer;font-family:var(--sans)}
+.btn-danger{background:transparent;border:1px solid rgba(74,144,255,.35);color:#7FB0FF;border-radius:9px;padding:9px 14px;font-size:12px;font-weight:500;cursor:pointer;font-family:var(--sans)}
 
 .mets{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
 .met{background:var(--bg2);border:1px solid var(--border);border-radius:11px;padding:12px 13px}
@@ -78,8 +78,8 @@ input:focus,textarea:focus{border-color:var(--brand);background:#212A38}
 .order-line:last-child{border-bottom:none}
 .order-who{font-size:11px;font-weight:600;color:var(--text3)}
 .order-act{font-size:11px;font-weight:600;padding:2px 7px;border-radius:5px;margin-right:7px;letter-spacing:.02em}
-.act-buy{background:var(--buy);color:var(--brand);border:1px solid var(--buy-b)}
-.act-sell{background:var(--sell);color:#7FB0FF;border:1px solid var(--sell-b)}
+.act-buy{background:var(--buy);color:var(--accent);border:1px solid var(--buy-b)}
+.act-sell{background:var(--sell);color:var(--ok);border:1px solid var(--sell-b)}
 .order-price{font-family:var(--mono);font-size:19px;font-weight:600;letter-spacing:-.02em}
 .order-qty{font-family:var(--mono);font-size:13px;color:var(--text2);font-weight:500}
 .order-none{font-size:12px;color:var(--text3);padding:12px 0;text-align:center}
@@ -113,8 +113,8 @@ input:focus,textarea:focus{border-color:var(--brand);background:#212A38}
 .rao-buy{font-family:var(--mono);font-size:13px;color:var(--text2);font-weight:400}
 .rao-buy.top{color:var(--brand);font-weight:600}
 .rao-bq{font-family:var(--mono);font-size:12px;color:var(--text3);text-align:center}
-.rao-sell{font-family:var(--mono);font-size:13px;color:#7FB0FF;font-weight:500}
-.rao-sq{font-family:var(--mono);font-size:12px;color:#7FB0FF;text-align:center}
+.rao-sell{font-family:var(--mono);font-size:13px;color:var(--ok);font-weight:500}
+.rao-sq{font-family:var(--mono);font-size:12px;color:var(--ok);text-align:center}
 .rao-row.ext .rao-buy{color:var(--violet)}
 .ext-divider{font-size:10px;color:var(--violet);text-align:center;padding:7px 0;border-bottom:1px solid var(--border);letter-spacing:.04em}
 
@@ -133,9 +133,9 @@ input:focus,textarea:focus{border-color:var(--brand);background:#212A38}
 .tlog{display:grid;grid-template-columns:auto 1fr auto auto;gap:9px;padding:11px 0;border-bottom:1px solid rgba(40,50,63,.55);align-items:center}
 .tlog:last-child{border-bottom:none}
 .ttype{font-size:10px;font-weight:700;padding:3px 7px;border-radius:5px;white-space:nowrap;letter-spacing:.02em}
-.tt-buy{background:var(--buy);color:var(--brand);border:1px solid var(--buy-b)}
-.tt-profit{background:rgba(255,81,101,.1);color:#FF7A88;border:1px solid rgba(255,81,101,.3)}
-.tt-cut{background:var(--sell);color:#7FB0FF;border:1px solid var(--sell-b)}
+.tt-buy{background:var(--buy);color:var(--accent);border:1px solid var(--buy-b)}
+.tt-profit{background:rgba(79,255,176,.1);color:var(--accent);border:1px solid rgba(79,255,176,.3)}
+.tt-cut{background:rgba(255,81,101,.1);color:var(--accent2);border:1px solid rgba(255,81,101,.3)}
 .tt-virtual{background:rgba(167,139,250,.11);color:var(--violet);border:1px solid rgba(167,139,250,.3)}
 .tpnl{font-family:var(--mono);font-size:12px;font-weight:600;text-align:right}
 
@@ -192,7 +192,7 @@ input:focus,textarea:focus{border-color:var(--brand);background:#212A38}
 
   <!-- 오늘 -->
   <div class="pg on" id="pg-table">
-    <div><span class="lbl">전날 종가 (LP)</span><input type="number" id="lp" placeholder="135.47" step=".01" oninput="buildTbl()"></div>
+    <div><span class="lbl">전날 종가 (LP)</span><input type="number" id="lp" placeholder="135.47" step=".01" oninput="buildTbl()"><div id="lp-asof" style="font-size:10px;color:var(--text3);margin-top:4px"></div></div>
     <div style="height:12px"></div>
 
     <div id="tbl-out" style="display:none">
@@ -335,7 +335,7 @@ input:focus,textarea:focus{border-color:var(--brand);background:#212A38}
       <div style="font-size:12px;color:var(--text2);line-height:1.7;margin-bottom:12px">
         전량 매도로 사이클이 끝났으면 새 사이클을 시작하세요. 보유·Pot·Rank·사이클손익이 0으로 돌아가고, 누적손익은 그대로 이어져요.
       </div>
-      <button class="btn-new" style="background:transparent;color:#7FB0FF;border:1px solid var(--sell-b)" onclick="startNewCycle()">새 사이클 시작</button>
+      <button class="btn-new" style="background:transparent;color:#7FB0FF;border:1px solid rgba(74,144,255,.35)" onclick="startNewCycle()">새 사이클 시작</button>
     </div>
 
     <div class="sec">사이클 기록</div>
@@ -356,11 +356,11 @@ input:focus,textarea:focus{border-color:var(--brand);background:#212A38}
   <div class="modal">
     <div class="modal-title">데이터 백업 · 이전</div>
     <div class="modal-note">
-      기록은 자동으로 저장돼요. 다른 기기나 다른 대화의 앱으로 <b>모든 종목</b>을 한 번에 옮길 때만 쓰면 돼요.
+      기록은 이 기기(브라우저)에 자동 저장돼요. 다른 기기로 옮기거나 백업할 때만 아래를 쓰면 돼요.
     </div>
     <button class="btn-new" onclick="exportData()">전체 백업 복사하기</button>
     <textarea id="import-text" placeholder="여기에 백업 내용을 붙여넣으세요" style="height:96px;font-size:12px"></textarea>
-    <button class="btn-new" style="margin-top:9px;background:transparent;color:#7FB0FF;border:1px solid var(--sell-b)" onclick="importText()">붙여넣은 내용으로 복구</button>
+    <button class="btn-new" style="margin-top:9px;background:transparent;color:#7FB0FF;border:1px solid rgba(74,144,255,.35)" onclick="importText()">붙여넣은 내용으로 복구</button>
     <div id="backup-status" style="margin-top:8px;font-size:12px;display:none"></div>
     <div style="display:flex;gap:8px;margin-top:16px">
       <button class="btn-ghost" style="flex:1" onclick="downloadData()">파일로 저장</button>
@@ -390,8 +390,8 @@ input:focus,textarea:focus{border-color:var(--brand);background:#212A38}
 const KEY='switch_v8';
 let db={tickers:{},curId:null};
 
-// ── 클라우드 저장 (계정에 저장 · 기기 간 공유 · 자동 백업) ──
-let saveTimer=null,saveBusy=false,savePending=false;
+// ── 로컬 저장 (이 기기 브라우저에 저장 · GitHub Pages 버전) ──
+let saveTimer=null;
 function setSync(state){
   const el=document.getElementById('sync-dot');if(!el)return;
   const m={loading:['◌','불러오는 중','var(--text2)'],saving:['●','저장 중','var(--brand)'],
@@ -399,34 +399,26 @@ function setSync(state){
   const v=m[state]||m.ok;
   el.textContent=v[0]+' '+v[1];el.style.color=v[2];
 }
-async function cloudWrite(){
-  if(saveBusy){savePending=true;return;}
-  saveBusy=true;
+function cloudWrite(){
   try{
-    await window.storage.set(KEY,JSON.stringify({tickers:db.tickers}));
+    localStorage.setItem(KEY,JSON.stringify({tickers:db.tickers}));
     setSync('ok');
   }catch(e){
     console.error('save failed',e);setSync('err');
-    try{localStorage.setItem(KEY+'_backup',JSON.stringify({tickers:db.tickers}));}catch(_){}
   }
-  saveBusy=false;
-  if(savePending){savePending=false;cloudWrite();}
 }
 const save=()=>{setSync('saving');clearTimeout(saveTimer);saveTimer=setTimeout(cloudWrite,400);};
 // 즉시 저장 — 종목 추가/삭제처럼 중요한 동작 직후, 화면을 벗어나도 유실되지 않도록 지연 없이 바로 씀
 const saveNow=()=>{clearTimeout(saveTimer);setSync('saving');cloudWrite();};
-// 화면을 벗어나거나(다른 탭 전환, 앱 백그라운드) 아티팩트가 닫히기 직전에 대기 중인 저장을 강제로 흘려보냄
+// 화면을 벗어나거나(다른 탭 전환, 앱 백그라운드) 닫히기 직전에 대기 중인 저장을 강제로 흘려보냄
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'&&saveTimer)saveNow();});
 window.addEventListener('pagehide',()=>{if(saveTimer)saveNow();});
-async function boot(){
+function boot(){
   setSync('loading');
   let loaded=null;
-  try{
-    const r=await window.storage.get(KEY);
-    if(r&&r.value)loaded=JSON.parse(r.value);
-  }catch(e){/* 최초 실행 — 저장된 데이터 없음 */}
+  try{const o=localStorage.getItem(KEY);if(o)loaded=JSON.parse(o);}catch(_){}
   if(!loaded){
-    try{const o=localStorage.getItem(KEY);if(o)loaded=JSON.parse(o);}catch(_){}
+    try{const b=localStorage.getItem(KEY+'_backup');if(b)loaded=JSON.parse(b);}catch(_){}
   }
   db.tickers=(loaded&&loaded.tickers)||{};
   db.curId=null;
@@ -452,13 +444,10 @@ function openTicker(id){
   document.getElementById('screen-home').classList.remove('on');
   document.getElementById('screen-ticker').classList.add('on');
   document.getElementById('hdr-logo').textContent=t.ticker;
-  // LP: 오늘 입력한 값이 있으면 자동 복원, 아니면 비움
+  // LP: 마지막으로 입력한 값을 날짜와 상관없이 그대로 복원 (강제 초기화 없음)
   const lpEl=document.getElementById('lp');
-  if(t.lp && t.lpDate===today()){
-    lpEl.value=t.lp;
-  } else {
-    lpEl.value='';
-  }
+  lpEl.value=t.lp||'';
+  updateLpAsOf(t);
   document.getElementById('tbl-out').style.display='none';
   document.getElementById('tbl-empty').style.display='block';
   const cpEl=document.getElementById('cp');if(cpEl)cpEl.value='';
@@ -495,6 +484,13 @@ function goTblTab(name,btn){
 }
 
 function cur(){return db.curId?db.tickers[db.curId]:null;}
+function updateLpAsOf(t){
+  const el=document.getElementById('lp-asof');if(!el)return;
+  if(!t||!t.lp){el.textContent='';return;}
+  const fresh=t.lpDate===today();
+  el.textContent=(fresh?'오늘 입력함':'마지막 입력: '+(t.lpDate||'—'))+' · 새 종가면 덮어써 주세요';
+  el.style.color=fresh?'var(--text3)':'var(--accent3)';
+}
 
 // ── 확인 절차 (일부 환경에서 confirm이 차단될 수 있어 2회 탭 방식으로 대체) ──
 let _pendingKey=null,_pendingTimer=null;
@@ -677,7 +673,7 @@ function buildTbl(){
   if(!lp||isNaN(lp)){empty.style.display='block';out.style.display='none';return;}
   empty.style.display='none';out.style.display='block';
   // LP를 오늘 날짜와 함께 저장 (같은 날 재방문 시 자동 복원)
-  if(t){t.lp=lp;t.lpDate=today();save();}
+  if(t){t.lp=lp;t.lpDate=today();save();updateLpAsOf(t);}
 
   // ── 업다운 Pot/보유 계산 (가상매수 포함, 테이블은 P+R 구한 뒤 생성) ──
   const _us=udState(t&&t.ud?t.ud:[]);
