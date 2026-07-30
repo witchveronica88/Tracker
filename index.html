@@ -14,6 +14,8 @@
   --accent2:#FF5165;  /* 하락·손실 (미국 증시 관행: 빨강) */
   --accent3:#E8B44A;
   --ok:#3CC28B;--violet:#A78BFA;
+  --buy-fg:#FF8494;  /* 매수 글자 = 하락색(빨강) 계열 */
+  --sell-fg:#4FD9A0; /* 매도 글자 = 상승색(초록) 계열 */
   --text:#EAEEF5;--text2:#8D97A8;--text3:#5B6577;
   --buy:#3A1520;--buy-b:#5A2438;   /* 매수 = 미국 증시 하락색(빨강) 계열 */
   --sell:#123A2C;--sell-b:#1E5A45; /* 매도 = 미국 증시 상승색(초록) 계열 */
@@ -57,8 +59,8 @@ input:focus,textarea:focus{border-color:var(--brand);background:#212A38}
 
 .btn{border:none;border-radius:9px;font-family:var(--sans);font-size:14px;font-weight:600;cursor:pointer;padding:11px 16px;transition:.15s}
 .btn:active{transform:scale(.98)}
-.btn-buy{background:var(--buy);border:1px solid var(--buy-b);color:var(--accent);width:100%}
-.btn-sell{background:var(--sell);border:1px solid var(--sell-b);color:var(--ok);width:100%}
+.btn-buy{background:var(--buy);border:1px solid var(--buy-b);color:var(--buy-fg);width:100%}
+.btn-sell{background:var(--sell);border:1px solid var(--sell-b);color:var(--sell-fg);width:100%}
 .btn-del{background:transparent;border:none;color:var(--text3);font-size:17px;padding:4px 6px;cursor:pointer}
 .btn-new{background:var(--brand);color:#1A1206;border:none;border-radius:11px;padding:13px;font-size:14px;font-weight:700;width:100%;cursor:pointer;margin-bottom:10px;font-family:var(--sans)}
 .btn-new:active{filter:brightness(.92)}
@@ -78,8 +80,8 @@ input:focus,textarea:focus{border-color:var(--brand);background:#212A38}
 .order-line:last-child{border-bottom:none}
 .order-who{font-size:11px;font-weight:600;color:var(--text3)}
 .order-act{font-size:11px;font-weight:600;padding:2px 7px;border-radius:5px;margin-right:7px;letter-spacing:.02em}
-.act-buy{background:var(--buy);color:var(--accent);border:1px solid var(--buy-b)}
-.act-sell{background:var(--sell);color:var(--ok);border:1px solid var(--sell-b)}
+.act-buy{background:var(--buy);color:var(--buy-fg);border:1px solid var(--buy-b)}
+.act-sell{background:var(--sell);color:var(--sell-fg);border:1px solid var(--sell-b)}
 .order-price{font-family:var(--mono);font-size:19px;font-weight:600;letter-spacing:-.02em}
 .order-qty{font-family:var(--mono);font-size:13px;color:var(--text2);font-weight:500}
 .order-none{font-size:12px;color:var(--text3);padding:12px 0;text-align:center}
@@ -110,11 +112,11 @@ input:focus,textarea:focus{border-color:var(--brand);background:#212A38}
 .rao-head span:first-child,.rao-head span:nth-child(3){text-align:left}
 .rao-row{display:grid;grid-template-columns:1.25fr .5fr 1.25fr .5fr;gap:4px;padding:7px 4px;border-bottom:1px solid rgba(40,50,63,.55);align-items:center}
 .rao-row:last-child{border-bottom:none}
-.rao-buy{font-family:var(--mono);font-size:13px;color:var(--text2);font-weight:400}
-.rao-buy.top{color:var(--brand);font-weight:600}
+.rao-buy{font-family:var(--mono);font-size:13px;color:var(--buy-fg);font-weight:400;opacity:.85}
+.rao-buy.top{color:var(--buy-fg);font-weight:600;opacity:1}
 .rao-bq{font-family:var(--mono);font-size:12px;color:var(--text3);text-align:center}
-.rao-sell{font-family:var(--mono);font-size:13px;color:var(--ok);font-weight:500}
-.rao-sq{font-family:var(--mono);font-size:12px;color:var(--ok);text-align:center}
+.rao-sell{font-family:var(--mono);font-size:13px;color:var(--sell-fg);font-weight:500}
+.rao-sq{font-family:var(--mono);font-size:12px;color:var(--sell-fg);text-align:center}
 .rao-row.ext .rao-buy{color:var(--violet)}
 .ext-divider{font-size:10px;color:var(--violet);text-align:center;padding:7px 0;border-bottom:1px solid var(--border);letter-spacing:.04em}
 
@@ -133,8 +135,8 @@ input:focus,textarea:focus{border-color:var(--brand);background:#212A38}
 .tlog{display:grid;grid-template-columns:auto 1fr auto auto;gap:9px;padding:11px 0;border-bottom:1px solid rgba(40,50,63,.55);align-items:center}
 .tlog:last-child{border-bottom:none}
 .ttype{font-size:10px;font-weight:700;padding:3px 7px;border-radius:5px;white-space:nowrap;letter-spacing:.02em}
-.tt-buy{background:var(--buy);color:var(--accent);border:1px solid var(--buy-b)}
-.tt-profit{background:rgba(79,255,176,.1);color:var(--accent);border:1px solid rgba(79,255,176,.3)}
+.tt-buy{background:var(--buy);color:var(--buy-fg);border:1px solid var(--buy-b)}
+.tt-profit{background:rgba(60,194,139,.12);color:var(--accent);border:1px solid rgba(60,194,139,.32)}
 .tt-cut{background:rgba(255,81,101,.1);color:var(--accent2);border:1px solid rgba(255,81,101,.3)}
 .tt-virtual{background:rgba(167,139,250,.11);color:var(--violet);border:1px solid rgba(167,139,250,.3)}
 .tpnl{font-family:var(--mono);font-size:12px;font-weight:600;text-align:right}
@@ -520,12 +522,27 @@ function alertBox(msg){
 // 매수: 보유+qty, Pot+1 / 가상매수: Pot만 +1 (보유·잔금 무변) / 매도: 보유−qty, Pot−1, 보유 0이면 전체 리셋
 function udState(trades){
   let held=0,pot=0,virt=0;
+  // realAvg: 실제 체결만 반영한 평단 — 손익 계산의 기준 (돈의 진실)
+  // bookAvg: 가상매수까지 포함한 장부 평단 — 매도 발동 판단용 (평단을 끌어내리는 효과)
+  let rAvg=0,rQty=0, bAvg=0,bQty=0;
   (trades||[]).forEach(x=>{
-    if(x.type==='매수'){held+=x.qty;pot++;}
-    else if(x.type==='가상매수'){pot++;virt++;}
-    else{held=Math.max(0,held-x.qty);pot=Math.max(0,pot-1);if(held<=0){pot=0;virt=0;}}
+    if(x.type==='매수'){
+      held+=x.qty;pot++;
+      const n=rQty+x.qty; rAvg=(rAvg*rQty+x.price*x.qty)/n; rQty=n;
+      const m=bQty+x.qty; bAvg=(bAvg*bQty+x.price*x.qty)/m; bQty=m;
+    } else if(x.type==='가상매수'){
+      pot++;virt++;
+      // 실제 보유·실제 평단은 그대로. 장부 평단만 끌어내림
+      if(x.qty>0){ const m=bQty+x.qty; bAvg=(bAvg*bQty+x.price*x.qty)/m; bQty=m; }
+    } else {
+      held=Math.max(0,held-x.qty);pot=Math.max(0,pot-1);
+      rQty=Math.max(0,rQty-x.qty);
+      bQty=Math.max(0,bQty-x.qty);
+      if(held<=0){pot=0;virt=0;rAvg=0;rQty=0;bAvg=0;bQty=0;}
+    }
   });
-  return {held,pot,virt,realPot:Math.max(0,pot-virt)};
+  return {held,pot,virt,realPot:Math.max(0,pot-virt),
+          realAvg:rQty>0?rAvg:0, bookAvg:bQty>0?bAvg:(rQty>0?rAvg:0), bookQty:bQty};
 }
 function exhaustModeOf(t){return (t&&t.exhaustMode)==='rich'?'rich':'hong';}
 function maxDivOf(t){return Math.max(t&&t.div||15,(t&&t.maxDiv)||25);}
@@ -658,7 +675,7 @@ function makeTable(lp,unit,div,isUd,heldPots,maxRows){
   let cumQty=firstQty;
   for(let n=2;n<=totalRows;n++){
     cumQty+=1;
-    rows.push({price:Math.round(D16/cumQty*100)/100,qty:1,top:false,ext:n>div});
+    rows.push({price:Math.floor(D16/cumQty*100)/100,qty:1,top:false,ext:n>div});
   }
   return rows;
 }
@@ -757,19 +774,28 @@ function buildTbl(){
       ddBodyEl.appendChild(d);
     }
   });
-  // 2) 오늘 매수가 테이블
+  // 2) 오늘 매수가 테이블 — P+R ≥ div−1 이면 떨법 매수 중단(마지막 칸은 업다운 전용)
+  const ddBuyStopped = mode!=='rich' && PR>=div-1;
+  if(ddBuyStopped){
+    const dv=document.createElement('div');dv.className='ext-divider';
+    dv.style.color='var(--accent3)';
+    dv.textContent=PR>=div?`── 매수 중단 (${PR}/${div} 포랭) ──`:`── 떨법 매수 중단 (마지막 칸은 업다운) ──`;
+    ddBodyEl.appendChild(dv);
+  }
   ddRows.forEach((r,i)=>{
     const key=r.price.toFixed(2);
     const heldHere=ddHoldByPrice[key]||0;
     const sellP=heldHere>0?`$${r.price.toFixed(2)}`:'';
     const sellQ=heldHere>0?`${heldHere}`:'';
     const d=document.createElement('div');d.className='rao-row';
-    d.innerHTML=`<span class="rao-buy${r.top?' top':''}">$${r.price.toFixed(2)}</span><span class="rao-bq">${r.qty}</span><span class="rao-sell">${sellP}</span><span class="rao-sq">${sellQ}</span>`;
+    const buyStyle=ddBuyStopped?' style="opacity:.3;text-decoration:line-through"':'';
+    d.innerHTML=`<span class="rao-buy${r.top?' top':''}"${buyStyle}>$${r.price.toFixed(2)}</span><span class="rao-bq"${buyStyle}>${r.qty}</span><span class="rao-sell">${sellP}</span><span class="rao-sq">${sellQ}</span>`;
     ddBodyEl.appendChild(d);
   });
 
   // 주문 카드 · 시드 게이지
-  renderOrder({lp,udRows,udHeld,udSellQty,ddRows,ddLots:ddHoldByPrice});
+  renderOrder({lp,udRows,udHeld,udSellQty,ddRows,ddLots:ddHoldByPrice,
+               PR,div,mode,realAvg:_us.realAvg,bookAvg:_us.bookAvg});
   renderGauge({PR,realPR:Math.max(0,udPot-udVirt)+ddRank,div,virt:udVirt,unit,
                seed:t?t.seed:0,mode,mDiv});
 
@@ -785,15 +811,37 @@ function renderOrder(o){
   const buyMap={},sellMap={};
   const addBuy=(p,q)=>{const k=p.toFixed(2);buyMap[k]=(buyMap[k]||0)+q;};
   const addSell=(p,q)=>{const k=p.toFixed(2);sellMap[k]=(sellMap[k]||0)+q;};
-  o.udRows.slice(0,3).forEach(r=>addBuy(r.price,r.qty));
-  o.ddRows.slice(0,3).forEach(r=>addBuy(r.price,r.qty));
+  // ── 포랭 단계별 매수 규칙 ──
+  // P+R ≤ 13 : 업다운·떨법 모두 매수
+  // P+R = 14 : 마지막 1칸은 업다운 전용 — 떨법 매수 중단
+  // P+R ≥ 15 : 매수 없음, 매도만 (돈많음씨 모드는 최대 포랭까지 계속 매수)
+  const PR=o.PR||0, div=o.div||15, rich=o.mode==='rich';
+  const udBuyOK = rich || PR < div;
+  const ddBuyOK = rich || PR < div-1;
+  if(udBuyOK) o.udRows.slice(0,3).forEach(r=>addBuy(r.price,r.qty));
+  if(ddBuyOK) o.ddRows.slice(0,3).forEach(r=>addBuy(r.price,r.qty));
   if(o.udHeld>0&&o.udSellQty>0) addSell(o.lp,o.udSellQty);
   Object.keys(o.ddLots).forEach(k=>addSell(parseFloat(k),o.ddLots[k]));
   const buyRows=Object.keys(buyMap).map(parseFloat).sort((a,b)=>b-a).map(p=>({act:'매수',price:p,qty:buyMap[p.toFixed(2)]}));
   const sellRows=Object.keys(sellMap).map(parseFloat).sort((a,b)=>a-b).map(p=>({act:'매도',price:p,qty:sellMap[p.toFixed(2)]}));
   const rows=[...buyRows,...sellRows];
-  if(!rows.length){el.innerHTML='<div class="order-none">오늘 걸 주문이 없어요</div>';return;}
-  el.innerHTML=rows.map(r=>
+  // 단계 안내 배너
+  let banner='';
+  if(!rich&&PR>=div){
+    banner=`<div style="background:#241a3a;border:1px solid #4a2a7a;color:#cbb0ff;border-radius:8px;padding:9px 12px;margin-bottom:9px;font-size:11.5px;line-height:1.6">
+      <b>${PR}/${div} 포랭 — 매수 없음</b><br>매도만 진행해요. 매도가 나가면 포랭이 줄고, 14 이하로 내려오면 매수가 다시 열려요.</div>`;
+  } else if(!rich&&PR===div-1){
+    banner=`<div style="background:#2a2010;border:1px solid #5a4a20;color:var(--accent3);border-radius:8px;padding:9px 12px;margin-bottom:9px;font-size:11.5px;line-height:1.6">
+      <b>${PR}/${div} 포랭 — 마지막 칸은 업다운 전용</b><br>떨법 매수는 걸지 않아요. 아래 매수는 업다운 것만이에요.</div>`;
+  }
+  // 손절 경고: LP가 실제 평단보다 낮으면 이 매도는 손실 확정
+  if(o.udHeld>0&&o.udSellQty>0&&o.realAvg>0&&o.lp<o.realAvg){
+    const loss=(o.realAvg-o.lp)*o.udSellQty;
+    banner+=`<div style="background:rgba(255,81,101,.1);border:1px solid rgba(255,81,101,.35);color:var(--accent2);border-radius:8px;padding:9px 12px;margin-bottom:9px;font-size:11.5px;line-height:1.6">
+      <b>업다운 매도는 손절이에요</b><br>실제 평단 $${o.realAvg.toFixed(2)} &gt; 매도가 $${o.lp.toFixed(2)} · ${o.udSellQty}주 기준 약 −$${loss.toFixed(2)}. 현금 확보 목적이면 진행, 아니면 보류하세요.</div>`;
+  }
+  if(!rows.length){el.innerHTML=banner+'<div class="order-none">오늘 걸 주문이 없어요</div>';return;}
+  el.innerHTML=banner+rows.map(r=>
     `<div class="order-line">
        <span class="order-who"></span>
        <span><span class="order-act ${r.act==='매수'?'act-buy':'act-sell'}">${r.act}</span><span class="order-price">$${r.price.toFixed(2)}</span></span>
@@ -841,6 +889,7 @@ function alreadyToday(track,kind){
   const d=today();
   return t[track].some(x=>x.date===d&&(kind==='매수'?x.type==='매수':(x.type==='익절'||x.type==='손절')));
 }
+const rollBtn=(C)=>`<button class="fill-btn" style="width:100%;margin-top:9px;background:var(--bg3);border:1px solid var(--brand);color:var(--brand);padding:11px" onclick="rollForward()">이 종가($${C.toFixed(2)})를 전날 종가로 넘기기 →</button>`;
 function checkFills(){
   const out=document.getElementById('fill-out');
   if(!out)return;
@@ -851,7 +900,7 @@ function checkFills(){
   const f=fillCtx;
   let warn='';
   if(Math.abs(C-f.lp)<0.005){
-    warn='<div class="exhaust-badge exhaust-rich" style="margin-bottom:8px">전날 종가(LP)와 오늘 종가가 같아요. LP 칸에 <b>전날</b> 종가가 들어갔는지 확인해주세요.</div>';
+    warn='<div class="exhaust-badge exhaust-rich" style="margin-bottom:8px">LP와 오늘 종가가 같아요. 이미 넘긴 상태라면 정상이에요. 아니라면 LP 칸에 <b>전날</b> 종가가 들어갔는지 확인해주세요.</div>';
   }
   // 업다운 — 하루 한 번만
   if(C<=f.udBuyPrice){
@@ -880,7 +929,8 @@ function checkFills(){
     const done=alreadyToday('ud','매수')||alreadyToday('ud','매도')||alreadyToday('dd','매수')||alreadyToday('dd','매도');
     out.innerHTML=warn+(done
       ? '<div class="fill-none" style="color:var(--accent)">✓ 오늘 체결분은 모두 기록됐어요</div>'
-      : '<div class="fill-none">오늘은 체결된 주문이 없어요.</div>');
+      : '<div class="fill-none">오늘은 체결된 주문이 없어요.</div>')
+      + rollBtn(C);
     return;
   }
   out.innerHTML=warn;
@@ -893,10 +943,35 @@ function checkFills(){
       `<button class="fill-btn" onclick="recordFill(${i})">기록</button>`;
     out.appendChild(d);
   });
+  const rb=document.createElement('div');
+  rb.innerHTML=rollBtn(C);
+  out.appendChild(rb);
 }
 function recordFill(i){
   const x=fillList[i];if(!x)return;
   addTradeCore(x.track,x.type,x.price,x.qty,today());
+}
+// ── 오늘 종가를 전날 종가(LP)로 넘기기 ──
+// 기록을 마친 뒤 같은 숫자를 LP에 다시 타이핑하면 "종가와 같다" 경고가 떠서
+// 화면을 나갔다 들어와야 했던 번거로움을 없애기 위한 기능.
+function rollForward(){
+  const t=cur();if(!t)return;
+  const cpEl=document.getElementById('cp');
+  const C=parseFloat(cpEl?cpEl.value:NaN);
+  if(!C||isNaN(C))return;
+  const go=()=>{
+    document.getElementById('lp').value=C.toFixed(2);
+    t.lp=C; t.lpDate=today();
+    cpEl.value='';
+    saveNow();
+    buildTbl();
+    const out=document.getElementById('fill-out');
+    if(out)out.innerHTML=`<div class="fill-none" style="color:var(--accent)">✓ LP를 $${C.toFixed(2)}로 넘겼어요. 표가 다음 거래일 기준으로 갱신됐어요.</div>`;
+    window.scrollTo(0,0);
+  };
+  if(fillList.length){
+    confirmAction('roll',`아직 기록하지 않은 체결이 ${fillList.length}건 있어요.\n그래도 다음 날로 넘길까요?`,go);
+  } else { go(); }
 }
 
 // ── 거래 ──
@@ -906,7 +981,11 @@ function addTradeCore(track,type,price,qty,date){
   const t=cur();if(!t)return false;
   if(type==='가상매수'){
     if(!price)return false;
-    t[track].push({id:Date.now(),date:date||today(),type:'가상매수',price,qty:qty||0});
+    // 수량 미입력 시 "샀다치면 몇 주였을까"를 1회매수금 ÷ 가격으로 자동 산정.
+    // 이 수량이 장부 평단을 끌어내려 매도 발동 판단에 쓰인다.
+    let vq=qty;
+    if(!vq||vq<=0){ vq=Math.max(1,Math.floor((t.seed/Math.max(t.div,1))/price)); }
+    t[track].push({id:Date.now(),date:date||today(),type:'가상매수',price,qty:vq});
     saveNow();renderTrades(track);renderSettings();buildTbl();
     return true;
   }
@@ -993,9 +1072,19 @@ function renderTrades(track){
       list.appendChild(row);
     });
   }
-  const _virtN=track==='ud'?udState(t.ud).virt:0;
+  const _us2=track==='ud'?udState(t.ud):null;
+  const _virtN=_us2?_us2.virt:0;
   setMet(track+'-qty-d',_cq.toFixed(0)+'주'+(_virtN>0?` (가상${_virtN})`:''),'');
-  setMet(track+'-avg',_cq>0?'$'+_ca.toFixed(2):'—','');
+  // 가상매수가 있으면 실제 평단 + 장부 평단을 같이 보여준다
+  if(_us2&&_virtN>0&&_cq>0){
+    const el=document.getElementById(track+'-avg');
+    if(el){
+      el.innerHTML=`$${_us2.realAvg.toFixed(2)}<span style="display:block;font-size:11px;color:#b58cff;margin-top:2px">장부 $${_us2.bookAvg.toFixed(2)}</span>`;
+      el.className='met-val';
+    }
+  } else {
+    setMet(track+'-avg',_cq>0?'$'+_ca.toFixed(2):'—','');
+  }
   setMet(track+'-cpnl',(_cp>=0?'+':'-')+'$'+Math.abs(_cp).toFixed(2),_cp>=0?'pos':'neg');
   setMet(track+'-tpnl',(_tp>=0?'+':'-')+'$'+Math.abs(_tp).toFixed(2),_tp>=0?'pos':'neg');
 }
