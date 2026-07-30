@@ -547,6 +547,24 @@ function udState(trades){
 function exhaustModeOf(t){return (t&&t.exhaustMode)==='rich'?'rich':'hong';}
 function maxDivOf(t){return Math.max(t&&t.div||15,(t&&t.maxDiv)||25);}
 
+// ── 실제 현금 흐름 기반 잔금 (라오어 시트 방식) ──
+// 잔금 = 시작 시드 − 실제 매수금 합 + 매도금 합
+// 칸 수 × 1회매수금 근사와 달리, 매수가·매도가의 실제 차이와 회수 현금이 모두 반영된다.
+// 가상매수는 실제 자금이 나가지 않으므로 제외한다.
+function cashState(t){
+  if(!t)return {invested:0,proceeds:0,cash:0,net:0};
+  let invested=0, proceeds=0;
+  ['ud','dd'].forEach(tr=>{
+    (t[tr]||[]).forEach(x=>{
+      if(x.type==='매수') invested+=x.price*x.qty;
+      else if(x.type==='가상매수'){/* 실제 자금 이동 없음 */}
+      else proceeds+=x.price*x.qty;   // 익절·손절·매도
+    });
+  });
+  const net=invested-proceeds;                 // 순투입액
+  return {invested,proceeds,net,cash:t.seed-net};
+}
+
 // ── 종목 목록 ──
 function renderTickerList(){
   const el=document.getElementById('ticker-list');
@@ -567,7 +585,7 @@ function renderTickerList(){
     const rank=Object.keys(ddLots).length;
     const PR=us.pot+rank, realPR=Math.max(0,us.pot-us.virt)+rank;
     const unit=t.seed/Math.max(t.div,1);
-    const pct=t.seed>0?Math.round(Math.max(0,t.seed-realPR*unit)/t.seed*100):0;
+    const pct=t.seed>0?Math.round(cashState(t).cash/t.seed*100):0;
     const card=document.createElement('div');
     card.className='ticker-card';
     card.onclick=()=>openTicker(id);
@@ -797,7 +815,7 @@ function buildTbl(){
   renderOrder({lp,udRows,udHeld,udSellQty,ddRows,ddLots:ddHoldByPrice,
                PR,div,mode,realAvg:_us.realAvg,bookAvg:_us.bookAvg});
   renderGauge({PR,realPR:Math.max(0,udPot-udVirt)+ddRank,div,virt:udVirt,unit,
-               seed:t?t.seed:0,mode,mDiv});
+               seed:t?t.seed:0,mode,mDiv,cash:cashState(t).cash});
 
   // ── 체결 판정용 컨텍스트 저장 ──
   fillCtx={lp,unit,div,udBuyPrice:udRows[0].price,udHeld,udPot,udSellQty,
@@ -854,7 +872,7 @@ function renderGauge(g){
   const el=document.getElementById('gauge');if(!el)return;
   const base=g.mode==='rich'?g.mDiv:g.div;
   const total=Math.max(base,g.PR);           // 가상 포랭이 분할을 넘어도 모두 표시
-  const cash=Math.max(0,g.seed-g.realPR*g.unit);
+  const cash=g.cash!==undefined?g.cash:Math.max(0,g.seed-g.realPR*g.unit);
   const pct=g.seed>0?Math.round(cash/g.seed*100):0;
   let cells='';
   for(let i=1;i<=total;i++){
@@ -1273,11 +1291,11 @@ function updateCfg(){
   document.getElementById('cfg-unit').textContent='$'+unit.toFixed(0);
   document.getElementById('cfg-shares').textContent=totalShares+'주';
   document.getElementById('cfg-pr-d').textContent=PR+' / '+effDiv+(udVirt>0?` (가상${udVirt})`:'');
-  const usedAmt=realPR*unit;
+  // 실제 현금 흐름 기준 (칸 수 근사 대신 매수·매도 금액 합산)
+  const cs=cashState(t);
   const usedEl=document.getElementById('cfg-used');
-  usedEl.textContent='$'+usedAmt.toFixed(0);
-  usedEl.className='met-val'+(usedAmt>t.seed?' warn':'');
-  if(usedAmt>t.seed){usedEl.textContent+=` (+$${(usedAmt-t.seed).toFixed(0)})`;}
+  usedEl.innerHTML=`$${cs.net.toFixed(0)}<span style="display:block;font-size:11px;color:var(--text2);margin-top:2px">잔금 $${cs.cash.toFixed(0)}${t.seed>0?` · ${Math.round(cs.cash/t.seed*100)}%`:''}</span>`;
+  usedEl.className='met-val'+(cs.cash<0?' warn':'');
   const pe=document.getElementById('cfg-profit');
   pe.textContent=(tp>=0?'+':'-')+'$'+Math.abs(tp).toFixed(2);
   pe.className='met-val '+(tp>=0?'pos':'neg');
