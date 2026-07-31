@@ -6,9 +6,8 @@
 <meta name="googlebot" content="noindex, nofollow">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<title>스위치법 트래커 v5.0 (2026-07-21)</title>
+<title>매매 기록</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+KR:wght@300;400;500;600;700&display=swap');
 :root{
   --bg:#0E1219;--bg2:#151B25;--bg3:#1D2531;--border:#28323F;--border2:#354254;
   --brand:#E8B44A;
@@ -21,8 +20,8 @@
   --text:#EAEEF5;--text2:#8D97A8;--text3:#5B6577;
   --buy:#3A1520;--buy-b:#5A2438;   /* 매수 = 미국 증시 하락색(빨강) 계열 */
   --sell:#123A2C;--sell-b:#1E5A45; /* 매도 = 미국 증시 상승색(초록) 계열 */
-  --mono:'IBM Plex Mono',ui-monospace,monospace;
-  --sans:'IBM Plex Sans KR',system-ui,-apple-system,sans-serif;
+  --mono:ui-monospace,'SF Mono',Menlo,Consolas,'Roboto Mono','D2Coding',monospace;
+  --sans:system-ui,-apple-system,'Apple SD Gothic Neo',Roboto,'Noto Sans KR','Malgun Gothic','맑은 고딕',sans-serif;
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 body{background:var(--bg);color:var(--text);font-family:var(--sans);font-weight:400;min-height:100vh;padding-bottom:48px;-webkit-font-smoothing:antialiased}
@@ -164,7 +163,7 @@ input:focus,textarea:focus{border-color:var(--brand);background:#212A38}
 <div id="screen-home" class="scr on">
   <div class="hdr">
     <div class="hdr-row">
-      <span class="home-title">SWITCH</span>
+      <span class="home-title">TRACKER</span>
       <span class="ver">v5.0</span>
       <span id="sync-dot" style="margin-left:auto;font-size:10px;font-family:var(--mono);color:var(--accent)">● 저장됨</span>
     </div>
@@ -391,10 +390,11 @@ input:focus,textarea:focus{border-color:var(--brand);background:#212A38}
 </div>
 
 <script>
-const KEY='switch_v8';
+const KEY='gt_v1';
+const LEGACY_KEYS=['switch_v8'];
 let db={tickers:{},curId:null};
 
-// ── 로컬 저장 (이 기기 브라우저에 저장 · GitHub Pages 버전) ──
+// ── 로컬 저장 (이 기기 브라우저에 저장) ──
 let saveTimer=null;
 function setSync(state){
   const el=document.getElementById('sync-dot');if(!el)return;
@@ -423,6 +423,15 @@ function boot(){
   try{const o=localStorage.getItem(KEY);if(o)loaded=JSON.parse(o);}catch(_){}
   if(!loaded){
     try{const b=localStorage.getItem(KEY+'_backup');if(b)loaded=JSON.parse(b);}catch(_){}
+  }
+  // 이전 저장 키에 남아 있는 데이터를 자동으로 이어받는다
+  if(!loaded){
+    for(const k of LEGACY_KEYS){
+      try{
+        const o=localStorage.getItem(k)||localStorage.getItem(k+'_backup');
+        if(o){loaded=JSON.parse(o);break;}
+      }catch(_){}
+    }
   }
   db.tickers=(loaded&&loaded.tickers)||{};
   db.curId=null;
@@ -1321,7 +1330,7 @@ function downloadData(){
     const a=document.createElement('a');
     const n=new Date();
     const ds=n.getFullYear()+('0'+(n.getMonth()+1)).slice(-2)+('0'+n.getDate()).slice(-2);
-    a.href=url;a.download=`switch_backup_${ds}.json`;
+    a.href=url;a.download=`backup_${ds}.json`;
     document.body.appendChild(a);a.click();document.body.removeChild(a);
     setTimeout(()=>URL.revokeObjectURL(url),1000);
     showBackupStatus('✓ 파일 저장을 시도했어요. 안 되면 위 복사 방식을 쓰세요.',true);
