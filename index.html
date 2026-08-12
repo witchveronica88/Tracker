@@ -167,7 +167,7 @@ input:focus,textarea:focus{border-color:var(--brand);background:#212A38}
   <div class="hdr">
     <div class="hdr-row">
       <span class="home-title">TRACKER</span>
-      <span class="ver">v5.7</span>
+      <span class="ver">v5.9</span>
       <span id="sync-dot" style="margin-left:auto;font-size:calc(10px*var(--fs));font-family:var(--mono);color:var(--accent)">● 저장됨</span>
     </div>
   </div>
@@ -198,10 +198,7 @@ input:focus,textarea:focus{border-color:var(--brand);background:#212A38}
 
   <!-- 오늘 -->
   <div class="pg on" id="pg-table">
-    <div><span class="lbl">전날 종가 (LP)</span><input type="number" id="lp" placeholder="135.47" step=".01" oninput="buildTbl()"><div id="lp-asof" style="font-size:calc(10px*var(--fs));color:var(--text3);margin-top:4px"></div>
-      <div style="font-size:calc(10px*var(--fs));color:var(--text3);margin-top:6px;line-height:1.6">
-        장중·프리장에 매도했다면 <b style="color:var(--accent3)">그 체결가를 LP에 입력</b>하세요. 표가 그 가격 기준으로 다시 짜입니다.</div></div>
-    <div style="height:12px"></div>
+    <div style="margin-bottom:6px"><span class="lbl">전날 종가 (LP)</span><input type="number" id="lp" placeholder="135.47" step=".01" oninput="buildTbl()"><div id="lp-asof" style="font-size:calc(10px*var(--fs));color:var(--text3);margin-top:4px"></div></div>
 
     <div id="tbl-out" style="display:none">
 
@@ -213,16 +210,15 @@ input:focus,textarea:focus{border-color:var(--brand);background:#212A38}
       <div id="exhaust-note"></div>
       <div id="incomplete-note"></div>
 
-      <div class="sec">장 마감 후 체결 확인</div>
+      <div class="sec">체결 확인</div>
       <div class="card">
         <span class="lbl">오늘 종가</span>
         <input type="number" id="cp" step=".01" placeholder="136.81" oninput="onCloseChange()">
         <div id="fill-out" style="margin-top:11px"></div>
       </div>
 
-      <div class="sec">전체 매수매도표</div>
-      <details class="fold">
-        <summary>15분할 전체 가격표 펼치기</summary>
+      <details class="fold" style="margin-top:22px">
+        <summary id="tbl-sum">전체 매수매도표</summary>
         <div class="fold-body">
           <div class="stabs">
             <button class="stab on" onclick="goTblTab('ud',this)">평단형</button>
@@ -261,10 +257,7 @@ input:focus,textarea:focus{border-color:var(--brand);background:#212A38}
           <button class="btn btn-buy"  onclick="addTrade('ud','매수')">매수 체결</button>
           <button class="btn btn-sell" onclick="addTrade('ud','매도')">매도 체결</button>
         </div>
-        <div style="display:flex;align-items:center;gap:8px;margin-top:8px">
-          <button class="btn" id="ud-virtual-btn" style="display:none;flex:0 0 auto;padding:5px 12px;font-size:calc(11px*var(--fs));background:#241a3a;border:1px solid #4a2a7a;color:#b58cff" onclick="addTrade('ud','기록 매수')">기록 매수</button>
-          <span id="ud-virtual-hint" style="display:none;font-size:calc(10px*var(--fs));color:var(--text3);line-height:1.4">시드 소진 시 사용 · 칸만 +1</span>
-        </div>
+        <button class="btn" id="ud-virtual-btn" style="display:none;margin-top:8px;padding:8px;font-size:calc(12px*var(--fs));background:#241a3a;border:1px solid #4a2a7a;color:#b58cff;width:100%" onclick="addTrade('ud','기록 매수')">기록 매수</button>
       </div>
       <div class="mets">
         <div class="met"><div class="met-lbl">보유수량</div><div class="met-val" id="ud-qty-d">—</div></div>
@@ -307,9 +300,6 @@ input:focus,textarea:focus{border-color:var(--brand);background:#212A38}
         <div><span class="lbl">시작 시드 ($)</span><input type="number" id="cfg-seed" oninput="saveCfg()"></div>
         <div><span class="lbl">전체 분할 수</span><input type="number" id="cfg-div" oninput="saveCfg()"></div>
       </div>
-      <div style="font-size:calc(11px*var(--fs));color:var(--text3);margin-top:8px;line-height:1.6">
-        ※ 사용 칸 수는 거래기록의 매수 횟수로 자동 계산돼요. 전체 분할 수는 평단형·회차형이 함께 쓰는 시드 전체의 칸 수예요.
-      </div>
     </div>
     <div class="mets">
       <div class="met"><div class="met-lbl">1회 매수금</div><div class="met-val" id="cfg-unit">—</div></div>
@@ -328,22 +318,13 @@ input:focus,textarea:focus{border-color:var(--brand);background:#212A38}
         <button class="stab" id="mode-hong" onclick="setExhaustMode('hong')">예산 고정 (원칙)</button>
         <button class="stab" id="mode-rich" onclick="setExhaustMode('rich')">추가 투입 (추가시드)</button>
       </div>
-      <div id="mode-desc-hong" style="font-size:calc(11px*var(--fs));color:var(--text3);line-height:1.7">
-        시드(전체 분할) 소진 후 — 매수는 <b style="color:#b58cff">기록 매수</b>로 기록해요. 잔금 차감 없이 칸만 +1 되어 테이블이 가격을 따라가고, 매도(손절)는 실제 체결로 입력해요. 회차형 매도 기준은 변경 없음.
-      </div>
       <div id="mode-desc-rich" style="display:none">
-        <div style="font-size:calc(11px*var(--fs));color:var(--text3);line-height:1.7;margin-bottom:10px">
-          시드 소진 후에도 16, 17, … 칸으로 <b style="color:var(--accent3)">실제 매수를 계속</b>해요. 매수 테이블이 아래 최대 칸까지 연장됩니다. 추가 자금이 필요해요.
-        </div>
-        <div><span class="lbl">최대 칸 (권장 25)</span><input type="number" id="cfg-maxdiv" oninput="saveMaxDiv()"></div>
+        <div><span class="lbl">최대 칸</span><input type="number" id="cfg-maxdiv" oninput="saveMaxDiv()"></div>
       </div>
     </div>
 
     <div class="sec">사이클 관리</div>
     <div class="card">
-      <div style="font-size:calc(12px*var(--fs));color:var(--text2);line-height:1.7;margin-bottom:12px">
-        전량 매도로 사이클이 끝났으면 새 사이클을 시작하세요. 보유·사용 칸·사이클손익이 0으로 돌아가고, 누적손익은 그대로 이어져요.
-      </div>
       <button class="btn-new" style="background:transparent;color:#7FB0FF;border:1px solid rgba(74,144,255,.35)" onclick="startNewCycle()">새 사이클 시작</button>
       <button class="btn-new" style="background:transparent;color:var(--accent3);border:1px solid rgba(230,168,60,.4);margin-top:8px" onclick="startIncompleteClose()">불완전 종료 — 회차형 잔여를 평단형으로 이월</button>
     </div>
@@ -358,16 +339,10 @@ input:focus,textarea:focus{border-color:var(--brand);background:#212A38}
         <button class="stab" id="fs-m" onclick="setFS(.88)">보통</button>
         <button class="stab" id="fs-l" onclick="setFS(1)">크게</button>
       </div>
-      <div style="font-size:calc(11px*var(--fs));color:var(--text3);line-height:1.6">
-        앱 전체 글자 크기를 한 번에 바꿔요. 이 기기에만 적용되고 거래 기록에는 영향이 없어요.
-      </div>
     </div>
 
     <div class="sec">종목 삭제</div>
     <div class="card">
-      <div style="font-size:calc(12px*var(--fs));color:var(--text2);line-height:1.7;margin-bottom:12px">
-        이 종목의 모든 거래 기록이 사라져요. 되돌릴 수 없어요.
-      </div>
       <button class="btn-danger" onclick="deleteTicker()">이 종목 삭제</button>
     </div>
   </div>
@@ -396,7 +371,7 @@ input:focus,textarea:focus{border-color:var(--brand);background:#212A38}
 <div class="modal-bg" id="edit-bg" onclick="closeEdit(event)">
   <div class="modal">
     <div class="modal-title">거래 수정</div>
-    <div style="font-size:calc(11px*var(--fs));color:var(--text3);line-height:1.6;margin-bottom:14px" id="e-ctx"></div>
+    <div style="font-size:calc(11px*var(--fs));color:var(--text3);margin-bottom:14px" id="e-ctx"></div>
     <div style="margin-bottom:10px">
       <span class="lbl">종류</span>
       <div class="stabs">
@@ -409,7 +384,8 @@ input:focus,textarea:focus{border-color:var(--brand);background:#212A38}
       <div><span class="lbl">날짜 (예: 7/23)</span><input type="text" id="e-date" placeholder="7/23"></div>
       <div><span class="lbl">단가 ($)</span><input type="number" id="e-price" step=".01"></div>
     </div>
-    <div style="margin-bottom:16px"><span class="lbl">수량 (주)</span><input type="number" id="e-qty" step="1"></div>
+    <div style="margin-bottom:8px"><span class="lbl">수량 (주)</span><input type="number" id="e-qty" step="1"></div>
+    <div style="margin-bottom:16px"><span class="lbl">메모</span><input type="text" id="e-memo" placeholder="예: 이월"></div>
     <button class="btn-new" onclick="saveTradeEdit()">저장</button>
     <button class="btn-new" style="background:transparent;color:var(--text2);border:1px solid var(--border);margin-bottom:0" onclick="closeEdit()">취소</button>
   </div>
@@ -687,9 +663,10 @@ function deleteTicker(){
 }
 
 // ── 불완전 종료 (똥 처리) ──
-function ddHoldingsOf(t){
+// 회차형 보유 회차 집계 {매수가: 수량} — 매도는 가장 싸게 산 회차부터 매칭
+function ddHoldingsOf(trades){
   const hold={};
-  (t&&t.dd?t.dd:[]).forEach(x=>{
+  (trades||[]).forEach(x=>{
     if(x.type==='매수'){const k=x.price.toFixed(2);hold[k]=(hold[k]||0)+x.qty;}
     else{
       let rem=x.qty;
@@ -705,9 +682,11 @@ function ddHoldingsOf(t){
   });
   return hold;
 }
+const ddQtyOf=(hold)=>Object.keys(hold).reduce((s,k)=>s+hold[k],0);
+
 function startIncompleteClose(){
   const t=cur();if(!t)return;
-  const lots=ddHoldingsOf(t);
+  const lots=ddHoldingsOf(t.dd);
   const keys=Object.keys(lots).map(parseFloat).sort((a,b)=>a-b);
   if(!keys.length){alert('회차형에 남은 보유가 없어요.');return;}
   const qty=keys.reduce((s,p)=>s+lots[p.toFixed(2)],0);
@@ -721,7 +700,7 @@ function startIncompleteClose(){
   confirmAction('incomplete',msg,()=>doIncompleteClose(t));
 }
 function doIncompleteClose(t){
-  const lots=ddHoldingsOf(t);
+  const lots=ddHoldingsOf(t.dd);
   const keys=Object.keys(lots).map(parseFloat).sort((a,b)=>a-b);
   if(!keys.length)return;
   const udTotal=calcTotal(db.curId,'ud');
@@ -740,7 +719,7 @@ function doIncompleteClose(t){
     endedAt:today(),incomplete:true});
   t.carryover=(t.carryover||0)+udTotal+ddTotal;
   // 회차별 매수 기록을 그대로 평단형으로 이월 → Pot=회차수, 평단=가중평균, 잔금 불변
-  t.ud=keys.map(p=>({id:newId(),date:today(),type:'매수',price:p,qty:lots[p.toFixed(2)],moved:true}));
+  t.ud=keys.map(p=>({id:newId(),date:today(),type:'매수',price:p,qty:lots[p.toFixed(2)],memo:'이월',lp:curLP()}));
   t.dd=[];
   saveNow();
   renderTrades('ud');renderTrades('dd');renderSettings();buildTbl();
@@ -753,7 +732,7 @@ function startNewCycle(){
   const t=cur();if(!t)return;
   // 현재 보유 확인
   const udHeld=udState(t.ud).held;
-  let ddHeld=0;(t.dd||[]).forEach(x=>{ddHeld+=x.type==='매수'?x.qty:-x.qty;});
+  const ddHeld=ddQtyOf(ddHoldingsOf(t.dd));
   const msg=(udHeld>0||ddHeld>0)
     ? `아직 보유분이 남아있어요.\n평단형 ${udHeld}주, 회차형 ${ddHeld}주\n\n그래도 새 사이클을 시작할까요?\n(남은 보유분 기록은 정리됩니다)`
     : '새 사이클을 시작할까요?\n현재 사이클 기록이 정리되고 0부터 다시 시작해요.';
@@ -833,28 +812,9 @@ function buildTbl(){
     const udSellQty=udPot>0?Math.floor(udHeld/udPot):0;
 
     const ddRows=makeTable(lp,unit,div,false,0);
-  // 현재 보유 중인 회차형 회차들을 매수가별로 집계
-  let ddHeld=0;
-  const ddHoldByPrice={}; // {매수가: 수량}
-  (t&&t.dd?t.dd:[]).forEach(x=>{
-    if(x.type==='매수'){
-      ddHeld+=x.qty;
-      const key=x.price.toFixed(2);
-      ddHoldByPrice[key]=(ddHoldByPrice[key]||0)+x.qty;
-    } else {
-      // 매도: 매도가 이하로 산 보유분(싼 것부터) 차감
-      let rem=x.qty;
-      const keys=Object.keys(ddHoldByPrice).map(parseFloat).sort((a,b)=>a-b);
-      for(const p of keys){
-        if(rem<=0)break;
-        const k=p.toFixed(2);
-        const m=Math.min(ddHoldByPrice[k],rem);
-        ddHoldByPrice[k]-=m; rem-=m; ddHeld-=m;
-        if(ddHoldByPrice[k]<=0)delete ddHoldByPrice[k];
-      }
-    }
-  });
-    const ddRank=Object.keys(ddHoldByPrice).length;
+  const ddHoldByPrice=ddHoldingsOf(t&&t.dd);
+  const ddHeld=ddQtyOf(ddHoldByPrice);
+  const ddRank=Object.keys(ddHoldByPrice).length;
 
     const PR=udPot+ddRank;
   const mode=exhaustModeOf(t);
@@ -877,6 +837,8 @@ function buildTbl(){
   });
 
   // ── 시드 소진 안내 배지 ──
+  const sumEl=document.getElementById('tbl-sum');
+  if(sumEl)sumEl.textContent=`전체 매수매도표 (${div}분할)`;
   const noteEl=document.getElementById('exhaust-note');
   if(noteEl){
     if(PR>=div){
@@ -940,7 +902,7 @@ function buildTbl(){
   renderOrder({lp,udRows,udHeld,udSellQty,ddRows,ddLots:ddHoldByPrice,
                PR,div,mode,realAvg:_us.realAvg,bookAvg:_us.bookAvg});
   renderGauge({PR,realPR:Math.max(0,udPot-udVirt)+ddRank,div,virt:udVirt,unit,
-               seed:t?t.seed:0,mode,mDiv,cash:cashState(t).cash});
+               seed:t?t.seed:0,mode,mDiv,cash:cashState(t).cash,udHeld,ddHeld});
 
   // ── 체결 판정용 컨텍스트 저장 ──
   fillCtx={lp,unit,div,
@@ -1013,7 +975,7 @@ function renderGauge(g){
     </div>
     <div class="gauge-cells">${cells}</div>
     <div class="gauge-foot">
-      <span>평단형 + 회차형 사용 칸</span>
+      <span>평단형 <b style="color:var(--text)">${g.udHeld||0}</b> + 회차형 <b style="color:var(--text)">${g.ddHeld||0}</b> = <b style="color:var(--text)">${(g.udHeld||0)+(g.ddHeld||0)}</b>주</span>
       <span>잔금 <b>$${cash.toLocaleString(undefined,{maximumFractionDigits:0})}</b> · ${pct}%</span>
     </div>`;
 }
@@ -1048,10 +1010,9 @@ function alreadyForLP(track,kind){
 }
 function basisNote(C){
   const f=fillCtx; if(!f)return '';
-  return `<div style="font-size:calc(10.5px*var(--fs));color:var(--text3);text-align:center;padding:6px 0;font-family:var(--mono);line-height:1.6">
-    전날 $${f.lp.toFixed(2)} · 오늘 $${C.toFixed(2)} · 사용 ${f.PR||0}칸<br>
-    <span style="font-family:var(--sans)">평단형 매수 ≤ $${f.udBuyPrice.toFixed(2)} · 매도 ≥ $${f.lp.toFixed(2)}${f.udHeld>0?` (${f.udSellQty}주)`:' (보유 없음)'}</span><br>
-    <span style="font-family:var(--sans)">회차형 매수 ≤ $${f.ddBuyPrice.toFixed(2)} · 보유 회차 ${f.ddRank||0}개</span>
+  return `<div style="font-size:calc(10.5px*var(--fs));color:var(--text3);text-align:center;padding:7px 0;font-family:var(--mono);line-height:1.7">
+    전날 $${f.lp.toFixed(2)} · 오늘 $${C.toFixed(2)}<br>
+    평단 ≤ $${f.udBuyPrice.toFixed(2)} / ≥ $${f.lp.toFixed(2)}${f.udHeld>0?` (${f.udSellQty})`:''} · 회차 ≤ $${f.ddBuyPrice.toFixed(2)}
   </div>`;
 }
 const rollBtn=(C)=>`<button class="fill-btn" style="width:100%;margin-top:9px;background:var(--bg3);border:1px solid var(--brand);color:var(--brand);padding:11px" onclick="rollForward()">이 종가($${C.toFixed(2)})를 전날 종가로 넘기기 →</button>`;
@@ -1093,7 +1054,7 @@ function checkFills(){
   const doneLine=skipList.map((x,i)=>
     `<div class="fill-row" style="opacity:.75">
        <span class="ttype" style="background:transparent;border:1px solid var(--border2);color:var(--text2)">✓ 기록됨</span>
-       <span class="fill-txt">${x.track==='ud'?'평단형':'회차형'} ${x.type} $${x.price.toFixed(2)} × ${x.qty}주<br><span style="font-size:calc(10px*var(--fs));color:var(--text3);font-family:var(--sans)">이 전날 종가($${f.lp.toFixed(2)})로 이미 기록했어요</span></span>
+       <span class="fill-txt">${x.track==='ud'?'평단형':'회차형'} ${x.type} $${x.price.toFixed(2)} × ${x.qty}주</span>
        <button class="fill-btn" style="background:transparent;border:1px solid var(--border2);color:var(--text2)" onclick="recordSkip(${i})">다시 기록</button>
      </div>`).join('');
   if(!fillList.length){
@@ -1108,7 +1069,7 @@ function checkFills(){
     const tagCls=isBuy?'tt-buy':(x.track==='dd'?'tt-profit':'tt-cut');
     const d=document.createElement('div');d.className='fill-row';
     d.innerHTML=`<span class="ttype ${tagCls}">${x.track==='ud'?'평단형':'회차형'} ${x.type}</span>`+
-      `<span class="fill-txt">$${x.price.toFixed(2)} × ${x.qty}주<br><span style="font-size:calc(10px*var(--fs));color:var(--text3);font-family:var(--sans)">${x.note}</span></span>`+
+      `<span class="fill-txt">$${x.price.toFixed(2)} × ${x.qty}주<br><span style="font-size:calc(10px*var(--fs));color:var(--text3);font-family:var(--sans)">${x.track==='ud'?'평단형':'회차형'} ${x.type}</span></span>`+
       `<button class="fill-btn" onclick="recordFill(${i})">기록</button>`;
     out.appendChild(d);
   });
@@ -1221,6 +1182,7 @@ function editTrade(track,id){
   document.getElementById('e-date').value=x.date||'';
   document.getElementById('e-price').value=x.price;
   document.getElementById('e-qty').value=x.qty;
+  document.getElementById('e-memo').value=x.memo||(x.moved?'이월':'');
   document.getElementById('e-ctx').textContent=
     (track==='ud'?'평단형':'회차형')+' · '+(idx+1)+'번째 기록 · 현재 '+x.type+' $'+x.price.toFixed(2)+' × '+x.qty+'주';
   setEditType(_edit.type);
@@ -1242,20 +1204,9 @@ function closeEdit(ev){
 function sellLabelAt(track,list,idx,price){
   const prev=list.slice(0,idx);
   if(track==='dd'){
-    let held={},minBuy=Infinity;
-    prev.forEach(x=>{
-      const k=x.price.toFixed(2);
-      if(x.type==='매수')held[k]=(held[k]||0)+x.qty;
-      else{
-        let rem=x.qty;
-        Object.keys(held).map(parseFloat).sort((a,b)=>a-b).forEach(p=>{
-          if(rem<=0)return;
-          const kk=p.toFixed(2);const m=Math.min(held[kk],rem);
-          held[kk]-=m;rem-=m;if(held[kk]<=0)delete held[kk];
-        });
-      }
-    });
-    Object.keys(held).forEach(k=>{if(held[k]>0)minBuy=Math.min(minBuy,parseFloat(k));});
+    const held=ddHoldingsOf(prev);
+    const ks=Object.keys(held).map(parseFloat);
+    const minBuy=ks.length?Math.min.apply(null,ks):Infinity;
     return price>=minBuy?'익절':'손절';
   }
   let avg=0,q=0;
@@ -1281,6 +1232,8 @@ function saveTradeEdit(){
   x.price=price;
   x.qty=qty>0?qty:0;
   x.type=(_edit.type==='매도')?sellLabelAt(_edit.track,list,idx,price):_edit.type;
+  const memo=(document.getElementById('e-memo').value||'').trim();
+  if(memo)x.memo=memo; else delete x.memo;
   delete x.moved;
   saveNow();
   closeEdit();
@@ -1317,7 +1270,7 @@ function renderTrades(track){
       const pnl=rowP[idx];
       const isCut=x.type==='손절';
       const row=document.createElement('div');row.className='tlog';
-      row.innerHTML=`<span class="ttype ${x.type==='매수'?'tt-buy':isCut?'tt-cut':'tt-profit'}">${x.type}</span><div><div style="font-family:var(--mono);font-size:calc(12px*var(--fs))">$${x.price.toFixed(2)} × ${x.qty}주</div><div style="font-size:calc(10px*var(--fs));color:var(--text3)">${x.date}</div></div><div class="tpnl ${pnl!==null?(pnl>=0?'pos':'neg'):''}">${pnl!==null?(pnl>=0?'+':'-')+'$'+Math.abs(pnl).toFixed(2):''}</div><button class="btn-del" style="color:var(--brand)" onclick="editTrade('${track}',${x.id})">✎</button><button class="btn-del" onclick="removeTrade('${track}',${x.id})">×</button>`;
+      row.innerHTML=`<span class="ttype ${x.type==='매수'?'tt-buy':isCut?'tt-cut':'tt-profit'}">${x.type}</span><div><div style="font-family:var(--mono);font-size:calc(12px*var(--fs))">$${x.price.toFixed(2)} × ${x.qty}주${x.memo?` <span style="color:var(--accent3)">· ${x.memo}</span>`:''}</div><div style="font-size:calc(10px*var(--fs));color:var(--text3)">${x.date}</div></div><div class="tpnl ${pnl!==null?(pnl>=0?'pos':'neg'):''}">${pnl!==null?(pnl>=0?'+':'-')+'$'+Math.abs(pnl).toFixed(2):''}</div><button class="btn-del" style="color:var(--brand)" onclick="editTrade('${track}',${x.id})">✎</button><button class="btn-del" onclick="removeTrade('${track}',${x.id})">×</button>`;
       list.appendChild(row);
     });
   } else {
@@ -1330,7 +1283,8 @@ function renderTrades(track){
       const isCut=x.type==='손절';
       const isVirt=x.type==='기록 매수';
       const badgeCls=x.type==='매수'?'tt-buy':isVirt?'tt-virtual':isCut?'tt-cut':'tt-profit';
-      const qtyTxt=(isVirt?(x.qty>0?` × ${x.qty}주(가상)`:' (가상)'):` × ${x.qty}주`)+(x.moved?' <span style="color:var(--accent3)">· 똥 이월</span>':'');
+      const _memo=x.memo||(x.moved?'이월':'');
+      const qtyTxt=(isVirt?(x.qty>0?` × ${x.qty}주(가상)`:' (가상)'):` × ${x.qty}주`)+(_memo?` <span style="color:var(--accent3)">· ${_memo}</span>`:'');
       const row=document.createElement('div');row.className='tlog';
       row.innerHTML=`<span class="ttype ${badgeCls}">${x.type}</span><div><div style="font-family:var(--mono);font-size:calc(12px*var(--fs))">$${x.price.toFixed(2)}${qtyTxt}</div><div style="font-size:calc(10px*var(--fs));color:var(--text3)">${x.date}</div></div><div class="tpnl ${pnl!==null?(pnl>=0?'pos':'neg'):''}">${pnl!==null?(pnl>=0?'+':'-')+'$'+Math.abs(pnl).toFixed(2):''}</div><button class="btn-del" style="color:var(--brand)" onclick="editTrade('${track}',${x.id})">✎</button><button class="btn-del" onclick="removeTrade('${track}',${x.id})">×</button>`;
       list.appendChild(row);
@@ -1416,13 +1370,10 @@ function updateModeUI(){
   const mode=exhaustModeOf(t);
   document.getElementById('mode-hong').className='stab'+(mode==='hong'?' on':'');
   document.getElementById('mode-rich').className='stab'+(mode==='rich'?' on':'');
-  document.getElementById('mode-desc-hong').style.display=mode==='hong'?'block':'none';
   document.getElementById('mode-desc-rich').style.display=mode==='rich'?'block':'none';
   // 기록 매수 버튼: 예산 고정 모드에서만 노출
   const vb=document.getElementById('ud-virtual-btn');
-  const vh=document.getElementById('ud-virtual-hint');
   if(vb){vb.style.display=mode==='hong'?'inline-block':'none';}
-  if(vh){vh.style.display=mode==='hong'?'inline':'none';}
 }
 function setExhaustMode(mode){
   const t=cur();if(!t)return;
@@ -1492,10 +1443,6 @@ function saveCfg(){
   t.div=parseInt(document.getElementById('cfg-div').value)||15;
   save();updateCfg();buildTbl();
 }
-function calcPot(id,track){
-  const t=db.tickers[id];if(!t||!t[track])return 0;
-  return udState(t[track]).pot;
-}
 function updateCfg(){
   const t=cur();if(!t)return;
   const unit=t.seed/Math.max(t.div,1);
@@ -1505,26 +1452,9 @@ function updateCfg(){
   const _cus=udState(t.ud);
   const udHeld=_cus.held, udPot=_cus.pot, udVirt=_cus.virt, udRealPot=_cus.realPot;
 
-  // 회차형: 보유주식·Rank(매수가 종류 수, 매수매도표와 동일 로직)
-  let ddHeld=0;
-  const ddHoldByPrice={};
-  (t.dd||[]).forEach(x=>{
-    if(x.type==='매수'){
-      ddHeld+=x.qty;
-      const key=x.price.toFixed(2);
-      ddHoldByPrice[key]=(ddHoldByPrice[key]||0)+x.qty;
-    } else {
-      let rem=x.qty;
-      const keys=Object.keys(ddHoldByPrice).map(parseFloat).sort((a,b)=>a-b);
-      for(const p of keys){
-        if(rem<=0)break;
-        const k=p.toFixed(2);
-        const m=Math.min(ddHoldByPrice[k],rem);
-        ddHoldByPrice[k]-=m; rem-=m; ddHeld-=m;
-        if(ddHoldByPrice[k]<=0)delete ddHoldByPrice[k];
-      }
-    }
-  });
+  // 회차형: 보유주식·Rank(매수가 종류 수)
+  const ddHoldByPrice=ddHoldingsOf(t.dd);
+  const ddHeld=ddQtyOf(ddHoldByPrice);
   const ddRank=Object.keys(ddHoldByPrice).length;
 
   const totalShares=udHeld+ddHeld;   // 주식 총 갯수 (평단형+회차형 합산 보유)
