@@ -167,7 +167,7 @@ input:focus,textarea:focus{border-color:var(--brand);background:#212A38}
   <div class="hdr">
     <div class="hdr-row">
       <span class="home-title">TRACKER</span>
-      <span class="ver">v5.2</span>
+      <span class="ver">v5.4</span>
       <span id="sync-dot" style="margin-left:auto;font-size:calc(10px*var(--fs));font-family:var(--mono);color:var(--accent)">● 저장됨</span>
     </div>
   </div>
@@ -211,6 +211,7 @@ input:focus,textarea:focus{border-color:var(--brand);background:#212A38}
       <div class="gauge" id="gauge"></div>
 
       <div id="exhaust-note"></div>
+      <div id="incomplete-note"></div>
 
       <div class="sec">장 마감 후 체결 확인</div>
       <div class="card">
@@ -344,6 +345,7 @@ input:focus,textarea:focus{border-color:var(--brand);background:#212A38}
         전량 매도로 사이클이 끝났으면 새 사이클을 시작하세요. 보유·사용 칸·사이클손익이 0으로 돌아가고, 누적손익은 그대로 이어져요.
       </div>
       <button class="btn-new" style="background:transparent;color:#7FB0FF;border:1px solid rgba(74,144,255,.35)" onclick="startNewCycle()">새 사이클 시작</button>
+      <button class="btn-new" style="background:transparent;color:var(--accent3);border:1px solid rgba(230,168,60,.4);margin-top:8px" onclick="startIncompleteClose()">불완전 종료 — 회차형 잔여를 평단형으로 이월</button>
     </div>
 
     <div class="sec">사이클 기록</div>
@@ -468,6 +470,9 @@ function migrateTypes(){
   if(n>0)save();
 }
 const today=()=>{const d=new Date();return(d.getMonth()+1)+'/'+(d.getDate());};
+// 거래 고유 ID — 같은 밀리초에 두 번 눌러도 겹치지 않도록 순번을 붙임
+let _lastId=0;
+const newId=()=>{const t=Date.now()*1000;_lastId=(t>_lastId)?t:_lastId+1;return _lastId;};
 
 document.getElementById('ud-date').value=today();
 document.getElementById('dd-date').value=today();
@@ -659,6 +664,69 @@ function deleteTicker(){
   });
 }
 
+// ── 불완전 종료 (똥 처리) ──
+function ddHoldingsOf(t){
+  const hold={};
+  (t&&t.dd?t.dd:[]).forEach(x=>{
+    if(x.type==='매수'){const k=x.price.toFixed(2);hold[k]=(hold[k]||0)+x.qty;}
+    else{
+      let rem=x.qty;
+      const keys=Object.keys(hold).map(parseFloat).sort((a,b)=>a-b);
+      for(const p of keys){
+        if(rem<=0)break;
+        const k=p.toFixed(2);
+        const m=Math.min(hold[k],rem);
+        hold[k]-=m;rem-=m;
+        if(hold[k]<=0)delete hold[k];
+      }
+    }
+  });
+  return hold;
+}
+function startIncompleteClose(){
+  const t=cur();if(!t)return;
+  const lots=ddHoldingsOf(t);
+  const keys=Object.keys(lots).map(parseFloat).sort((a,b)=>a-b);
+  if(!keys.length){alert('회차형에 남은 보유가 없어요.');return;}
+  const qty=keys.reduce((s,p)=>s+lots[p.toFixed(2)],0);
+  const cost=keys.reduce((s,p)=>s+p*lots[p.toFixed(2)],0);
+  const avg=cost/qty;
+  const msg='먼저 증권사에서 회차형 예약매도 주문을 모두 취소하세요.\n\n'
+    +'회차형 잔여 '+qty+'주('+keys.length+'회차, 평단 $'+avg.toFixed(2)+')를\n'
+    +'평단형으로 넘기고 사이클을 종료합니다.\n\n'
+    +'넘어간 물량은 회차별 매수가가 아니라 평단 기준으로 매도돼요.\n'
+    +'계속할까요?';
+  confirmAction('incomplete',msg,()=>doIncompleteClose(t));
+}
+function doIncompleteClose(t){
+  const lots=ddHoldingsOf(t);
+  const keys=Object.keys(lots).map(parseFloat).sort((a,b)=>a-b);
+  if(!keys.length)return;
+  const udTotal=calcTotal(db.curId,'ud');
+  const ddTotal=calcTotal(db.curId,'dd');
+  const allTrades=[...(t.ud||[]),...(t.dd||[])];
+  let period='—';
+  if(allTrades.length){
+    const dates=allTrades.map(x=>x.date).filter(Boolean);
+    if(dates.length)period=`${dates[0]} ~ ${dates[dates.length-1]}`;
+  }
+  t.history=t.history||[];
+  t.history.push({period,
+    ud:Math.round(udTotal*100)/100,
+    dd:Math.round(ddTotal*100)/100,
+    total:Math.round((udTotal+ddTotal)*100)/100,
+    endedAt:today(),incomplete:true});
+  t.carryover=(t.carryover||0)+udTotal+ddTotal;
+  // 회차별 매수 기록을 그대로 평단형으로 이월 → Pot=회차수, 평단=가중평균, 잔금 불변
+  t.ud=keys.map(p=>({id:newId(),date:today(),type:'매수',price:p,qty:lots[p.toFixed(2)],moved:true}));
+  t.dd=[];
+  saveNow();
+  renderTrades('ud');renderTrades('dd');renderSettings();buildTbl();
+  const q=keys.reduce((s,p)=>s+lots[p.toFixed(2)],0);
+  showBackupStatus(`✓ 불완전 종료 처리 완료 — 회차형 ${q}주를 평단형으로 이월했어요`,true);
+  window.scrollTo(0,0);
+}
+
 function startNewCycle(){
   const t=cur();if(!t)return;
   // 현재 보유 확인
@@ -801,6 +869,19 @@ function buildTbl(){
     } else {
       noteEl.innerHTML='';
     }
+  }
+
+  // ── 불완전 종료 감지: 평단형 전량 매도 + 회차형 잔여 ──
+  const icEl=document.getElementById('incomplete-note');
+  if(icEl){
+    if(udHeld<=0&&ddRank>0){
+      icEl.innerHTML=`<div class="exhaust-badge exhaust-rich">
+        <b>불완전 종료</b> — 평단형은 전량 매도됐는데 회차형 ${ddHeld}주(${ddRank}회차)가 남았어요.
+        <div style="margin-top:9px">
+          <button class="fill-btn" style="width:100%;padding:11px" onclick="startIncompleteClose()">똥 처리 — 평단형으로 이월 →</button>
+        </div>
+      </div>`;
+    } else { icEl.innerHTML=''; }
   }
 
   const ddBodyEl=document.getElementById('dd-body');ddBodyEl.innerHTML='';
@@ -988,7 +1069,12 @@ function checkFills(){
 }
 function recordFill(i){
   const x=fillList[i];if(!x)return;
-  addTradeCore(x.track,x.type,x.price,x.qty,today());
+  try{
+    const ok=addTradeCore(x.track,x.type,x.price,x.qty,today());
+    if(!ok)alert('기록하지 못했어요. 가격·수량을 확인해주세요.');
+  }catch(e){
+    alert('기록 중 오류가 났어요.\n'+(e&&e.message?e.message:e)+'\n기록 탭에서 직접 입력해주세요.');
+  }
 }
 // LP 이월
 function rollForward(){
@@ -1054,8 +1140,14 @@ function addTrade(track,type){
   const priceEl=document.getElementById(track+'-price');
   const qtyEl=document.getElementById(track+'-qty');
   const price=parseFloat(priceEl.value),qty=parseFloat(qtyEl.value);
-  if(addTradeCore(track,type,price,qty,dateEl.value||today())){
-    priceEl.value='';qtyEl.value='';dateEl.value=today();
+  try{
+    if(addTradeCore(track,type,price,qty,dateEl.value||today())){
+      priceEl.value='';qtyEl.value='';dateEl.value=today();
+    } else {
+      alert('기록하지 못했어요. 날짜·단가·수량을 확인해주세요.');
+    }
+  }catch(e){
+    alert('기록 중 오류가 났어요.\n'+(e&&e.message?e.message:e));
   }
 }
 function removeTrade(track,id){
@@ -1101,7 +1193,7 @@ function renderTrades(track){
       const isCut=x.type==='손절';
       const isVirt=x.type==='기록 매수';
       const badgeCls=x.type==='매수'?'tt-buy':isVirt?'tt-virtual':isCut?'tt-cut':'tt-profit';
-      const qtyTxt=isVirt?(x.qty>0?` × ${x.qty}주(가상)`:' (가상)'):` × ${x.qty}주`;
+      const qtyTxt=(isVirt?(x.qty>0?` × ${x.qty}주(가상)`:' (가상)'):` × ${x.qty}주`)+(x.moved?' <span style="color:var(--accent3)">· 똥 이월</span>':'');
       const row=document.createElement('div');row.className='tlog';
       row.innerHTML=`<span class="ttype ${badgeCls}">${x.type}</span><div><div style="font-family:var(--mono);font-size:calc(12px*var(--fs))">$${x.price.toFixed(2)}${qtyTxt}</div><div style="font-size:calc(10px*var(--fs));color:var(--text3)">${x.date}</div></div><div class="tpnl ${pnl!==null?(pnl>=0?'pos':'neg'):''}">${pnl!==null?(pnl>=0?'+':'-')+'$'+Math.abs(pnl).toFixed(2):''}</div><button class="btn-del" onclick="removeTrade('${track}',${x.id})">×</button>`;
       list.appendChild(row);
