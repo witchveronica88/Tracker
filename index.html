@@ -167,7 +167,7 @@ input:focus,textarea:focus{border-color:var(--brand);background:#212A38}
   <div class="hdr">
     <div class="hdr-row">
       <span class="home-title">TRACKER</span>
-      <span class="ver">v5.5</span>
+      <span class="ver">v5.7</span>
       <span id="sync-dot" style="margin-left:auto;font-size:calc(10px*var(--fs));font-family:var(--mono);color:var(--accent)">● 저장됨</span>
     </div>
   </div>
@@ -520,7 +520,7 @@ function openTicker(id){
   document.getElementById('tbl-out').style.display='none';
   document.getElementById('tbl-empty').style.display='block';
   const cpEl=document.getElementById('cp');if(cpEl)cpEl.value='';
-  fillCtx=null;fillList=[];
+  fillCtx=null;fillList=[];skipList=[];
   const fo=document.getElementById('fill-out');if(fo)fo.innerHTML='';
   // 매수매도표 탭으로
   goTab('table',document.querySelectorAll('#screen-ticker .tab')[0]);
@@ -1018,13 +1018,33 @@ function renderGauge(g){
     </div>`;
 }
 // 체결 판정
-let fillCtx=null, fillList=[];
+let fillCtx=null, fillList=[], skipList=[];
 function onCloseChange(){buildTbl();}
 // 오늘 이미 기록된 체결이 있는지 (새로고침해도 유지되도록 거래기록에서 직접 확인)
 function alreadyToday(track,kind){
   const t=cur();if(!t||!t[track])return false;
   const d=today();
   return t[track].some(x=>x.date===d&&(kind==='매수'?x.type==='매수':(x.type==='익절'||x.type==='손절')));
+}
+// 현재 화면의 전날 종가(LP)
+function curLP(){
+  const el=document.getElementById('lp');
+  const v=parseFloat(el?el.value:NaN);
+  return (v&&!isNaN(v))?v:undefined;
+}
+// 거래일 판정 — 날짜가 아니라 LP 기준.
+// LP를 다음 날로 넘기면 새 거래일이 되므로, 같은 날 두 거래일을 처리해도 각각 기록된다.
+// LP가 없던 예전 기록은 날짜로 대신 판정한다.
+function alreadyForLP(track,kind){
+  const t=cur();if(!t||!t[track])return false;
+  const lp=curLP();
+  if(lp===undefined)return alreadyToday(track,kind);
+  const d=today();
+  return t[track].some(x=>{
+    const hit=(kind==='매수')?x.type==='매수':(x.type==='익절'||x.type==='손절');
+    if(!hit)return false;
+    return (x.lp===undefined)?(x.date===d):(Math.abs(x.lp-lp)<0.005);
+  });
 }
 function basisNote(C){
   const f=fillCtx; if(!f)return '';
@@ -1034,32 +1054,34 @@ function basisNote(C){
     <span style="font-family:var(--sans)">회차형 매수 ≤ $${f.ddBuyPrice.toFixed(2)} · 보유 회차 ${f.ddRank||0}개</span>
   </div>`;
 }
-const manualBtn=()=>`<button class="btn-ghost" style="width:100%;margin-top:7px" onclick="goTab('trades',document.querySelectorAll('#screen-ticker .tab')[1])">직접 입력하기 (하루 2회째 · 프리장 체결)</button>`;
 const rollBtn=(C)=>`<button class="fill-btn" style="width:100%;margin-top:9px;background:var(--bg3);border:1px solid var(--brand);color:var(--brand);padding:11px" onclick="rollForward()">이 종가($${C.toFixed(2)})를 전날 종가로 넘기기 →</button>`;
 function checkFills(){
   const out=document.getElementById('fill-out');
   if(!out)return;
   const cpEl=document.getElementById('cp');
   const C=parseFloat(cpEl?cpEl.value:NaN);
-  fillList=[];
+  fillList=[];skipList=[];
   if(!fillCtx||!C||isNaN(C)){out.innerHTML='';return;}
   const f=fillCtx;
   let warn='';
   if(Math.abs(C-f.lp)<0.005){
-    warn='<div class="exhaust-badge exhaust-rich" style="margin-bottom:8px">LP와 오늘 종가가 같아요. 이미 넘긴 상태라면 정상이에요. 아니라면 LP 칸에 <b>전날</b> 종가가 들어갔는지 확인해주세요.</div>';
+    warn='<div class="exhaust-badge exhaust-rich" style="margin-bottom:8px">전날 종가와 오늘 종가가 같아요. 이미 넘긴 상태면 정상이에요. 아직 안 넘겼는데 값이 같은 거라면 아래 <b>다시 기록</b>으로 넣어주세요.</div>';
   }
-  // 평단형 — 하루 한 번만
+  // 평단형·회차형 매수는 하루 한 번만 — 오늘 이미 기록했으면 목록에서 제외한다.
+  // (LOC는 하루 한 번 체결. 매도 후에도 보유÷Pot가 여전히 유효해서 조건이 다시 참이 되는데,
+  //  그걸 그대로 띄우면 같은 날 두 번 팔게 된다.)
+  const put=(done,item)=>{ (done?skipList:fillList).push(item); };
   if(C<=f.udBuyPrice){
-    fillList.push({track:'ud',type:'매수',price:C,qty:Math.max(1,Math.floor(f.unit/C)),
-      note:`평단형 매수가 $${f.udBuyPrice.toFixed(2)} 이하`,dup:alreadyToday('ud','매수')});
+    put(alreadyForLP('ud','매수'),{track:'ud',type:'매수',price:C,qty:Math.max(1,Math.floor(f.unit/C)),
+      note:`평단형 매수가 $${f.udBuyPrice.toFixed(2)} 이하`});
   } else if(f.udHeld>0&&f.udPot>0&&C>=f.lp&&f.udSellQty>0){
-    fillList.push({track:'ud',type:'매도',price:C,qty:f.udSellQty,
-      note:`평단형 매도가 $${f.lp.toFixed(2)} 이상 · 보유 ${f.udHeld}÷Pot ${f.udPot}`,dup:alreadyToday('ud','매도')});
+    put(alreadyForLP('ud','매도'),{track:'ud',type:'매도',price:C,qty:f.udSellQty,
+      note:`평단형 매도가 $${f.lp.toFixed(2)} 이상 · 보유 ${f.udHeld}÷Pot ${f.udPot}`});
   }
-  // 회차형 — 매수는 하루 한 번, 매도는 회차별 (기록하면 회차가 사라져 자동 제외)
+  // 회차형 매도는 회차별로 여러 건 가능 (기록하면 회차가 사라져 자동 제외)
   if(C<=f.ddBuyPrice){
-    fillList.push({track:'dd',type:'매수',price:C,qty:Math.max(1,Math.floor(f.unit/C)),
-      note:`회차형 매수가 $${f.ddBuyPrice.toFixed(2)} 이하`,dup:alreadyToday('dd','매수')});
+    put(alreadyForLP('dd','매수'),{track:'dd',type:'매수',price:C,qty:Math.max(1,Math.floor(f.unit/C)),
+      note:`회차형 매수가 $${f.ddBuyPrice.toFixed(2)} 이하`});
   } else {
     Object.keys(f.ddLots).map(parseFloat).sort((a,b)=>a-b).forEach(p=>{
       if(p<=C){
@@ -1068,26 +1090,40 @@ function checkFills(){
       }
     });
   }
+  const doneLine=skipList.map((x,i)=>
+    `<div class="fill-row" style="opacity:.75">
+       <span class="ttype" style="background:transparent;border:1px solid var(--border2);color:var(--text2)">✓ 기록됨</span>
+       <span class="fill-txt">${x.track==='ud'?'평단형':'회차형'} ${x.type} $${x.price.toFixed(2)} × ${x.qty}주<br><span style="font-size:calc(10px*var(--fs));color:var(--text3);font-family:var(--sans)">이 전날 종가($${f.lp.toFixed(2)})로 이미 기록했어요</span></span>
+       <button class="fill-btn" style="background:transparent;border:1px solid var(--border2);color:var(--text2)" onclick="recordSkip(${i})">다시 기록</button>
+     </div>`).join('');
   if(!fillList.length){
-    const done=alreadyToday('ud','매수')||alreadyToday('ud','매도')||alreadyToday('dd','매수')||alreadyToday('dd','매도');
     out.innerHTML=warn
-      + `<div class="fill-none">${done?'<span style="color:var(--accent)">✓ 오늘 기록된 체결이 있어요</span><br>':''}추가로 잡히는 체결이 없어요.</div>`
-      + basisNote(C) + manualBtn() + rollBtn(C);
+      + (doneLine || `<div class="fill-none">체결된 주문이 없어요.</div>`)
+      + basisNote(C) + rollBtn(C);
     return;
   }
-  out.innerHTML=warn;
+  out.innerHTML=warn+doneLine;
   fillList.forEach((x,i)=>{
     const isBuy=x.type==='매수';
     const tagCls=isBuy?'tt-buy':(x.track==='dd'?'tt-profit':'tt-cut');
     const d=document.createElement('div');d.className='fill-row';
     d.innerHTML=`<span class="ttype ${tagCls}">${x.track==='ud'?'평단형':'회차형'} ${x.type}</span>`+
-      `<span class="fill-txt">$${x.price.toFixed(2)} × ${x.qty}주<br><span style="font-size:calc(10px*var(--fs));color:${x.dup?'var(--accent3)':'var(--text3)'};font-family:var(--sans)">${x.dup?'오늘 이미 '+x.type+' 기록이 있어요 · 중복이면 누르지 마세요':x.note}</span></span>`+
-      `<button class="fill-btn" style="${x.dup?'background:transparent;border:1px solid var(--accent3);color:var(--accent3)':''}" onclick="recordFill(${i})">${x.dup?'추가 기록':'기록'}</button>`;
+      `<span class="fill-txt">$${x.price.toFixed(2)} × ${x.qty}주<br><span style="font-size:calc(10px*var(--fs));color:var(--text3);font-family:var(--sans)">${x.note}</span></span>`+
+      `<button class="fill-btn" onclick="recordFill(${i})">기록</button>`;
     out.appendChild(d);
   });
   const rb=document.createElement('div');
-  rb.innerHTML=basisNote(C)+manualBtn()+rollBtn(C);
+  rb.innerHTML=basisNote(C)+rollBtn(C);
   out.appendChild(rb);
+}
+function recordSkip(i){
+  const x=skipList[i];if(!x)return;
+  try{
+    const ok=addTradeCore(x.track,x.type,x.price,x.qty,today());
+    if(!ok)alert('기록하지 못했어요. 가격·수량을 확인해주세요.');
+  }catch(e){
+    alert('기록 중 오류가 났어요.\n'+(e&&e.message?e.message:e));
+  }
 }
 function recordFill(i){
   const x=fillList[i];if(!x)return;
@@ -1129,7 +1165,7 @@ function addTradeCore(track,type,price,qty,date){
     if(!price)return false;
         let vq=qty;
     if(!vq||vq<=0){ vq=Math.max(1,Math.floor((t.seed/Math.max(t.div,1))/price)); }
-    t[track].push({id:newId(),date:date||today(),type:'기록 매수',price,qty:vq});
+    t[track].push({id:newId(),date:date||today(),type:'기록 매수',price,qty:vq,lp:curLP()});
     saveNow();renderTrades(track);renderSettings();buildTbl();
     return true;
   }
@@ -1152,7 +1188,7 @@ function addTradeCore(track,type,price,qty,date){
       label=price>=avg?'익절':'손절';
     }
   }
-  t[track].push({id:newId(),date:date||today(),type:label,price,qty});
+  t[track].push({id:newId(),date:date||today(),type:label,price,qty,lp:curLP()});
   saveNow();renderTrades(track);renderSettings();buildTbl();
   return true;
 }
