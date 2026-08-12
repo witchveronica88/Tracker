@@ -136,7 +136,7 @@ input:focus,textarea:focus{border-color:var(--brand);background:#212A38}
 .fill-none{font-size:calc(12px*var(--fs));color:var(--text3);text-align:center;padding:14px}
 
 /* ── 거래 목록 ── */
-.tlog{display:grid;grid-template-columns:auto 1fr auto auto;gap:9px;padding:11px 0;border-bottom:1px solid rgba(40,50,63,.55);align-items:center}
+.tlog{display:grid;grid-template-columns:auto 1fr auto auto auto;gap:7px;padding:11px 0;border-bottom:1px solid rgba(40,50,63,.55);align-items:center}
 .tlog:last-child{border-bottom:none}
 .ttype{font-size:calc(10px*var(--fs));font-weight:700;padding:3px 7px;border-radius:5px;white-space:nowrap;letter-spacing:.02em}
 .tt-buy{background:var(--buy);color:var(--buy-fg);border:1px solid var(--buy-b)}
@@ -167,7 +167,7 @@ input:focus,textarea:focus{border-color:var(--brand);background:#212A38}
   <div class="hdr">
     <div class="hdr-row">
       <span class="home-title">TRACKER</span>
-      <span class="ver">v5.4</span>
+      <span class="ver">v5.5</span>
       <span id="sync-dot" style="margin-left:auto;font-size:calc(10px*var(--fs));font-family:var(--mono);color:var(--accent)">● 저장됨</span>
     </div>
   </div>
@@ -393,6 +393,28 @@ input:focus,textarea:focus{border-color:var(--brand);background:#212A38}
 </div>
 
 <!-- 모달 -->
+<div class="modal-bg" id="edit-bg" onclick="closeEdit(event)">
+  <div class="modal">
+    <div class="modal-title">거래 수정</div>
+    <div style="font-size:calc(11px*var(--fs));color:var(--text3);line-height:1.6;margin-bottom:14px" id="e-ctx"></div>
+    <div style="margin-bottom:10px">
+      <span class="lbl">종류</span>
+      <div class="stabs">
+        <button class="stab" id="e-t-buy"  onclick="setEditType('매수')">매수</button>
+        <button class="stab" id="e-t-sell" onclick="setEditType('매도')">매도</button>
+        <button class="stab" id="e-t-virt" onclick="setEditType('기록 매수')">기록 매수</button>
+      </div>
+    </div>
+    <div class="g2" style="margin-bottom:8px">
+      <div><span class="lbl">날짜 (예: 7/23)</span><input type="text" id="e-date" placeholder="7/23"></div>
+      <div><span class="lbl">단가 ($)</span><input type="number" id="e-price" step=".01"></div>
+    </div>
+    <div style="margin-bottom:16px"><span class="lbl">수량 (주)</span><input type="number" id="e-qty" step="1"></div>
+    <button class="btn-new" onclick="saveTradeEdit()">저장</button>
+    <button class="btn-new" style="background:transparent;color:var(--text2);border:1px solid var(--border);margin-bottom:0" onclick="closeEdit()">취소</button>
+  </div>
+</div>
+
 <div class="modal-bg" id="modal-bg" onclick="closeModal(event)">
   <div class="modal">
     <div class="modal-title">새 종목 추가</div>
@@ -1093,7 +1115,8 @@ function rollForward(){
     window.scrollTo(0,0);
   };
   if(fillList.length){
-    confirmAction('roll',`아직 기록하지 않은 체결이 ${fillList.length}건 있어요.\n그래도 다음 날로 넘길까요?`,go);
+    const detail=fillList.map(x=>`· ${x.track==='ud'?'평단형':'회차형'} ${x.type} $${x.price.toFixed(2)} × ${x.qty}주`).join('\n');
+    confirmAction('roll',`아직 기록하지 않은 체결이 ${fillList.length}건 있어요.\n\n${detail}\n\n넘기면 LP가 바뀌어서 이 체결은 다시 안 잡혀요.\n그래도 넘길까요?`,go);
   } else { go(); }
 }
 
@@ -1150,6 +1173,84 @@ function addTrade(track,type){
     alert('기록 중 오류가 났어요.\n'+(e&&e.message?e.message:e));
   }
 }
+// ── 거래 수정 ──
+let _edit=null;   // {track,id,type}
+function editTrade(track,id){
+  const t=cur();if(!t)return;
+  const idx=(t[track]||[]).findIndex(x=>String(x.id)===String(id));
+  if(idx<0){alert('거래를 찾지 못했어요.');return;}
+  const x=t[track][idx];
+  const isSell=(x.type==='익절'||x.type==='손절');
+  _edit={track,id:x.id,type:isSell?'매도':x.type};
+  document.getElementById('e-date').value=x.date||'';
+  document.getElementById('e-price').value=x.price;
+  document.getElementById('e-qty').value=x.qty;
+  document.getElementById('e-ctx').textContent=
+    (track==='ud'?'평단형':'회차형')+' · '+(idx+1)+'번째 기록 · 현재 '+x.type+' $'+x.price.toFixed(2)+' × '+x.qty+'주';
+  setEditType(_edit.type);
+  document.getElementById('edit-bg').classList.add('open');
+}
+function setEditType(ty){
+  if(!_edit)return;
+  _edit.type=ty;
+  const m={'매수':'e-t-buy','매도':'e-t-sell','기록 매수':'e-t-virt'};
+  Object.values(m).forEach(id=>{const e=document.getElementById(id);if(e)e.classList.remove('on');});
+  const e=document.getElementById(m[ty]);if(e)e.classList.add('on');
+}
+function closeEdit(ev){
+  if(ev&&ev.target!==document.getElementById('edit-bg'))return;
+  document.getElementById('edit-bg').classList.remove('open');
+  _edit=null;
+}
+// 매도 라벨(익절/손절)은 그 거래 "이전" 기록들만으로 다시 판정한다
+function sellLabelAt(track,list,idx,price){
+  const prev=list.slice(0,idx);
+  if(track==='dd'){
+    let held={},minBuy=Infinity;
+    prev.forEach(x=>{
+      const k=x.price.toFixed(2);
+      if(x.type==='매수')held[k]=(held[k]||0)+x.qty;
+      else{
+        let rem=x.qty;
+        Object.keys(held).map(parseFloat).sort((a,b)=>a-b).forEach(p=>{
+          if(rem<=0)return;
+          const kk=p.toFixed(2);const m=Math.min(held[kk],rem);
+          held[kk]-=m;rem-=m;if(held[kk]<=0)delete held[kk];
+        });
+      }
+    });
+    Object.keys(held).forEach(k=>{if(held[k]>0)minBuy=Math.min(minBuy,parseFloat(k));});
+    return price>=minBuy?'익절':'손절';
+  }
+  let avg=0,q=0;
+  prev.forEach(x=>{
+    if(x.type==='매수'){const nq=q+x.qty;avg=(avg*q+x.price*x.qty)/nq;q=nq;}
+    else if(x.type!=='기록 매수')q=Math.max(0,q-x.qty);
+  });
+  return price>=avg?'익절':'손절';
+}
+function saveTradeEdit(){
+  if(!_edit){closeEdit();return;}
+  const t=cur();if(!t)return;
+  const list=t[_edit.track]||[];
+  const idx=list.findIndex(x=>String(x.id)===String(_edit.id));
+  if(idx<0){alert('거래를 찾지 못했어요.');closeEdit();return;}
+  const date=(document.getElementById('e-date').value||'').trim();
+  const price=parseFloat(document.getElementById('e-price').value);
+  const qty=parseFloat(document.getElementById('e-qty').value);
+  if(!price||price<=0){alert('단가를 확인해주세요.');return;}
+  if(_edit.type!=='기록 매수'&&(!qty||qty<=0)){alert('수량을 확인해주세요.');return;}
+  const x=list[idx];
+  x.date=date||x.date;
+  x.price=price;
+  x.qty=qty>0?qty:0;
+  x.type=(_edit.type==='매도')?sellLabelAt(_edit.track,list,idx,price):_edit.type;
+  delete x.moved;
+  saveNow();
+  closeEdit();
+  renderTrades(_edit.track);renderSettings();buildTbl();
+}
+
 function removeTrade(track,id){
   const t=cur();if(!t)return;
   t[track]=t[track].filter(x=>x.id!==id);
@@ -1180,7 +1281,7 @@ function renderTrades(track){
       const pnl=rowP[idx];
       const isCut=x.type==='손절';
       const row=document.createElement('div');row.className='tlog';
-      row.innerHTML=`<span class="ttype ${x.type==='매수'?'tt-buy':isCut?'tt-cut':'tt-profit'}">${x.type}</span><div><div style="font-family:var(--mono);font-size:calc(12px*var(--fs))">$${x.price.toFixed(2)} × ${x.qty}주</div><div style="font-size:calc(10px*var(--fs));color:var(--text3)">${x.date}</div></div><div class="tpnl ${pnl!==null?(pnl>=0?'pos':'neg'):''}">${pnl!==null?(pnl>=0?'+':'-')+'$'+Math.abs(pnl).toFixed(2):''}</div><button class="btn-del" onclick="removeTrade('${track}',${x.id})">×</button>`;
+      row.innerHTML=`<span class="ttype ${x.type==='매수'?'tt-buy':isCut?'tt-cut':'tt-profit'}">${x.type}</span><div><div style="font-family:var(--mono);font-size:calc(12px*var(--fs))">$${x.price.toFixed(2)} × ${x.qty}주</div><div style="font-size:calc(10px*var(--fs));color:var(--text3)">${x.date}</div></div><div class="tpnl ${pnl!==null?(pnl>=0?'pos':'neg'):''}">${pnl!==null?(pnl>=0?'+':'-')+'$'+Math.abs(pnl).toFixed(2):''}</div><button class="btn-del" style="color:var(--brand)" onclick="editTrade('${track}',${x.id})">✎</button><button class="btn-del" onclick="removeTrade('${track}',${x.id})">×</button>`;
       list.appendChild(row);
     });
   } else {
@@ -1195,7 +1296,7 @@ function renderTrades(track){
       const badgeCls=x.type==='매수'?'tt-buy':isVirt?'tt-virtual':isCut?'tt-cut':'tt-profit';
       const qtyTxt=(isVirt?(x.qty>0?` × ${x.qty}주(가상)`:' (가상)'):` × ${x.qty}주`)+(x.moved?' <span style="color:var(--accent3)">· 똥 이월</span>':'');
       const row=document.createElement('div');row.className='tlog';
-      row.innerHTML=`<span class="ttype ${badgeCls}">${x.type}</span><div><div style="font-family:var(--mono);font-size:calc(12px*var(--fs))">$${x.price.toFixed(2)}${qtyTxt}</div><div style="font-size:calc(10px*var(--fs));color:var(--text3)">${x.date}</div></div><div class="tpnl ${pnl!==null?(pnl>=0?'pos':'neg'):''}">${pnl!==null?(pnl>=0?'+':'-')+'$'+Math.abs(pnl).toFixed(2):''}</div><button class="btn-del" onclick="removeTrade('${track}',${x.id})">×</button>`;
+      row.innerHTML=`<span class="ttype ${badgeCls}">${x.type}</span><div><div style="font-family:var(--mono);font-size:calc(12px*var(--fs))">$${x.price.toFixed(2)}${qtyTxt}</div><div style="font-size:calc(10px*var(--fs));color:var(--text3)">${x.date}</div></div><div class="tpnl ${pnl!==null?(pnl>=0?'pos':'neg'):''}">${pnl!==null?(pnl>=0?'+':'-')+'$'+Math.abs(pnl).toFixed(2):''}</div><button class="btn-del" style="color:var(--brand)" onclick="editTrade('${track}',${x.id})">✎</button><button class="btn-del" onclick="removeTrade('${track}',${x.id})">×</button>`;
       list.appendChild(row);
     });
   }
