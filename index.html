@@ -20,14 +20,14 @@
   --text:#EAEEF5;--text2:#8D97A8;--text3:#5B6577;
   --buy:#3A1520;--buy-b:#5A2438;   /* 매수 = 미국 증시 하락색(빨강) 계열 */
   --sell:#123A2C;--sell-b:#1E5A45; /* 매도 = 미국 증시 상승색(초록) 계열 */
-  --fsu:.72;              /* 사용자가 고른 배율 */
+  --fsu:.70;              /* 사용자가 고른 배율 */
   --fs:var(--fsu);        /* 실제 적용 배율 (구역별로 덮어쓸 수 있음) */
   --t1:calc(12px*var(--fs));   /* 보조: 날짜·배지·단위 */
   --t2:calc(14px*var(--fs));   /* 라벨·캡션 */
   --t3:calc(16px*var(--fs));   /* 본문·목록·버튼 */
   --t4:calc(19px*var(--fs));   /* 탭·섹션·강조 */
-  --t5:calc(23px*var(--fs));   /* 입력·지표값 */
-  --t6:calc(29px*var(--fs));   /* 주문 가격 */
+  --t5:calc(20px*var(--fs));   /* 입력·지표값 */
+  --t6:calc(23px*var(--fs));   /* 주문 가격 */
   --mono:ui-monospace,'SF Mono',Menlo,Consolas,'Roboto Mono','D2Coding',monospace;
   --sans:system-ui,-apple-system,'Apple SD Gothic Neo',Roboto,'Noto Sans KR','Malgun Gothic','맑은 고딕',sans-serif;
 }
@@ -175,7 +175,7 @@ input:focus,textarea:focus{border-color:var(--brand);background:#212A38}
   <div class="hdr">
     <div class="hdr-row">
       <span class="home-title">TRACKER</span>
-      <span class="ver">v6.1</span>
+      <span class="ver">v6.2</span>
       <span id="sync-dot" style="margin-left:auto;font-size:var(--t1);font-family:var(--mono);color:var(--accent)">● 저장됨</span>
     </div>
   </div>
@@ -206,11 +206,11 @@ input:focus,textarea:focus{border-color:var(--brand);background:#212A38}
 
   <!-- 오늘 -->
   <div class="pg on" id="pg-table">
-    <div><span class="lbl">전날 종가</span><input type="number" id="lp" placeholder="135.47" step=".01" oninput="buildTbl()"></div>
+    <div style="margin-bottom:26px"><span class="lbl">전날 종가</span><input type="number" id="lp" placeholder="135.47" step=".01" oninput="buildTbl()"></div>
 
-    <div id="tbl-out" style="display:none">
+    <div id="tbl-out" style="display:none;padding-top:1px">
 
-      <div class="sec">주문</div>
+      <div class="sec" style="margin-top:0">주문</div>
       <div class="order-card" id="order-out"></div>
 
       <div class="gauge" id="gauge"></div>
@@ -343,11 +343,9 @@ input:focus,textarea:focus{border-color:var(--brand);background:#212A38}
     <div class="sec">화면 글자 크기</div>
     <div class="card">
       <div class="stabs" style="margin-bottom:10px">
-        <button class="stab" id="fs-1" style="font-size:13px;flex:1" onclick="setFS(.58)">A</button>
-        <button class="stab" id="fs-2" style="font-size:15px;flex:1" onclick="setFS(.65)">A</button>
-        <button class="stab" id="fs-3" style="font-size:17px;flex:1" onclick="setFS(.72)">A</button>
-        <button class="stab" id="fs-4" style="font-size:19px;flex:1" onclick="setFS(.80)">A</button>
-        <button class="stab" id="fs-5" style="font-size:22px;flex:1" onclick="setFS(.90)">A</button>
+        <button class="stab" id="fs-1" style="font-size:14px;flex:1" onclick="setFS(.62)">A</button>
+        <button class="stab" id="fs-2" style="font-size:17px;flex:1" onclick="setFS(.70)">A</button>
+        <button class="stab" id="fs-3" style="font-size:20px;flex:1" onclick="setFS(.78)">A</button>
       </div>
     </div>
 
@@ -1573,7 +1571,7 @@ function importData(input){
 
 // ── 화면 글자 크기 ──
 const FS_KEY='ui_fs';
-const FS_STEPS=[.58,.65,.72,.80,.90];
+const FS_STEPS=[.62,.70,.78];
 function applyFS(v){
   document.documentElement.style.setProperty('--fsu', v);
   let best=0;
@@ -1582,8 +1580,8 @@ function applyFS(v){
 }
 function setFS(v){ try{localStorage.setItem(FS_KEY,String(v));}catch(_){} applyFS(v); }
 function initFS(){
-  let v=.72;
-  try{ const s=parseFloat(localStorage.getItem(FS_KEY)); if(s>=.55&&s<=.95) v=s; }catch(_){}
+  let v=.70;
+  try{ const s=parseFloat(localStorage.getItem(FS_KEY)); if(s>=.60&&s<=.80) v=s; }catch(_){}
   applyFS(v);
 }
 
