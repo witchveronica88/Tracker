@@ -49,22 +49,22 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-weight:
 .tab{flex:1;font-size:var(--t4);font-weight:600;padding:14px 4px 12px;border:none;border-bottom:2px solid transparent;background:transparent;color:var(--text3);cursor:pointer;transition:.15s;font-family:var(--sans)}
 .tab.on{color:var(--brand);border-bottom-color:var(--brand)}
 
-.stabs{display:flex;gap:6px;margin-bottom:12px}
+.stabs{display:flex;gap:6px;margin-bottom:14px}
 .stab{font-size:var(--t4);font-weight:600;padding:9px 18px;border-radius:7px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;transition:.15s;font-family:var(--sans)}
 .stab.on{background:var(--bg3);border-color:var(--border2);color:var(--text)}
 
 .pg{padding:16px;display:none}.pg.on{display:block}
 .scr{display:none}.scr.on{display:block}
 
-.sec{font-size:var(--t3);font-weight:600;color:var(--text2);letter-spacing:.02em;margin-bottom:10px;margin-top:26px}
+.sec{font-size:var(--t3);font-weight:600;color:var(--text2);letter-spacing:.02em;margin-bottom:10px;margin-top:28px}
 .sec:first-child{margin-top:0}
-.card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:10px}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:14px}
 
-.lbl{font-size:var(--t2);color:var(--text2);font-weight:500;margin-bottom:5px;display:block}
+.lbl{font-size:var(--t2);color:var(--text2);font-weight:500;margin-bottom:6px;display:block}
 input[type=number],input[type=text],textarea{background:var(--bg3);border:1px solid var(--border);border-radius:9px;color:var(--text);font-family:var(--mono);font-size:var(--t5);font-weight:500;padding:12px 13px;width:100%;outline:none;transition:.15s;-webkit-appearance:none}
 input:focus,textarea:focus{border-color:var(--brand);background:#212A38}
-.g2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
-.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px}
 
 .btn{border:none;border-radius:9px;font-family:var(--sans);font-size:var(--t3);font-weight:600;cursor:pointer;padding:11px 16px;transition:.15s}
 .btn:active{transform:scale(.98)}
@@ -77,14 +77,14 @@ input:focus,textarea:focus{border-color:var(--brand);background:#212A38}
 .btn-ghost:active{background:var(--bg3)}
 .btn-danger{background:transparent;border:1px solid rgba(74,144,255,.35);color:#7FB0FF;border-radius:9px;padding:9px 14px;font-size:var(--t2);font-weight:500;cursor:pointer;font-family:var(--sans)}
 
-.mets{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+.mets{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
 .met{background:var(--bg2);border:1px solid var(--border);border-radius:11px;padding:13px 14px}
-.met-lbl{font-size:var(--t2);color:var(--text2);margin-bottom:5px}
+.met-lbl{font-size:var(--t2);color:var(--text2);margin-bottom:6px}
 .met-val{font-family:var(--mono);font-size:var(--t5);font-weight:600;letter-spacing:-.01em}
 .pos{color:var(--accent)}.neg{color:var(--accent2)}.warn{color:var(--brand)}
 
 /* ── 오늘의 주문 (히어로) ── */
-.order-card{background:linear-gradient(165deg,#1A222F 0%,var(--bg2) 62%);border:1px solid var(--border2);border-radius:14px;padding:4px 14px 12px;margin-bottom:12px}
+.order-card{background:linear-gradient(165deg,#1A222F 0%,var(--bg2) 62%);border:1px solid var(--border2);border-radius:14px;padding:4px 14px 12px;margin-bottom:14px}
 .order-line{display:grid;grid-template-columns:0 1fr auto;align-items:baseline;gap:0;padding:12px 0;border-bottom:1px solid var(--border)}
 .order-line:last-child{border-bottom:none}
 .order-who{font-size:var(--t2);font-weight:600;color:var(--text3)}
@@ -93,13 +93,13 @@ input:focus,textarea:focus{border-color:var(--brand);background:#212A38}
 .act-sell{background:var(--sell);color:var(--sell-fg);border:1px solid var(--sell-b)}
 .order-price{font-family:var(--mono);font-size:var(--t6);font-weight:600;letter-spacing:-.02em}
 .order-qty{font-family:var(--mono);font-size:var(--t3);color:var(--text2);font-weight:500}
-.cutline{margin-top:9px;padding-top:8px;border-top:1px solid var(--border);
+.cutline{margin-top:10px;padding-top:10px;border-top:1px solid var(--border);
   font-family:var(--mono);font-size:var(--t1);color:var(--text3);text-align:right}
 .order-none{font-size:var(--t2);color:var(--text3);padding:12px 0;text-align:center}
 
 /* ── 시드 게이지 (시그니처) ── */
-.gauge{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:13px 14px;margin-bottom:12px}
-.gauge-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:9px}
+.gauge{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:13px 14px;margin-bottom:14px}
+.gauge-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px}
 .gauge-ttl{font-size:var(--t3);font-weight:600;color:var(--text2);letter-spacing:.03em}
 .gauge-val{font-family:var(--mono);font-size:var(--t4);font-weight:600}
 .gauge-cells{display:flex;gap:3px;height:22px}
@@ -107,7 +107,7 @@ input:focus,textarea:focus{border-color:var(--brand);background:#212A38}
 .gcell.used{background:var(--brand);border-color:var(--brand)}
 .gcell.virt{background:transparent;border:1px solid var(--violet);box-shadow:inset 0 0 0 2px rgba(167,139,250,.28)}
 .gcell.ext{background:var(--bg3);border-color:var(--violet);opacity:.5}
-.gauge-foot{display:flex;flex-direction:column;gap:5px;margin-top:11px;font-size:var(--t2);color:var(--text2)}
+.gauge-foot{display:flex;flex-direction:column;gap:5px;margin-top:10px;font-size:var(--t2);color:var(--text2)}
 .gauge-foot b{font-family:var(--mono);font-weight:600;color:var(--text2)}
 
 /* ── 매수매도표 ── */
@@ -131,12 +131,12 @@ input:focus,textarea:focus{border-color:var(--brand);background:#212A38}
 .rao-row.ext .rao-buy{color:var(--violet)}
 .ext-divider{font-size:var(--t1);color:var(--violet);text-align:center;padding:7px 0;border-bottom:1px solid var(--border);letter-spacing:.04em}
 
-.exhaust-badge{border-radius:11px;padding:11px 13px;margin-bottom:10px;font-size:var(--t2);line-height:1.65}
+.exhaust-badge{border-radius:11px;padding:11px 13px;margin-bottom:14px;font-size:var(--t2);line-height:1.65}
 .exhaust-hong{background:rgba(167,139,250,.09);border:1px solid rgba(167,139,250,.3);color:#C6B4FA}
 .exhaust-rich{background:rgba(232,180,74,.09);border:1px solid rgba(232,180,74,.3);color:var(--brand)}
 
 /* ── 체결 확인 ── */
-.fill-row{display:flex;align-items:center;gap:10px;padding:11px 12px;border-radius:10px;margin-bottom:7px;border:1px solid var(--border);background:var(--bg2)}
+.fill-row{display:flex;align-items:center;gap:10px;padding:11px 12px;border-radius:10px;margin-bottom:10px;border:1px solid var(--border);background:var(--bg2)}
 .fill-txt{font-family:var(--mono);font-size:var(--t3);font-weight:500;flex:1;line-height:1.45}
 .fill-btn{border:none;border-radius:8px;padding:10px 16px;font-size:var(--t3);font-weight:700;cursor:pointer;background:var(--brand);color:#1A1206;white-space:nowrap;font-family:var(--sans)}
 .fill-btn:active{filter:brightness(.92)}
@@ -154,7 +154,7 @@ input:focus,textarea:focus{border-color:var(--brand);background:#212A38}
 .tpnl{font-family:var(--mono);font-size:var(--t3);font-weight:600;text-align:right}
 
 /* ── 종목 카드 ── */
-.ticker-card{background:var(--bg2);border:1px solid var(--border);border-radius:13px;padding:15px 16px;margin-bottom:9px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;transition:.15s}
+.ticker-card{background:var(--bg2);border:1px solid var(--border);border-radius:13px;padding:15px 16px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;transition:.15s}
 .ticker-card:active{border-color:var(--border2);background:#182029}
 .tc-name{font-family:var(--mono);font-size:var(--t5);font-weight:600;letter-spacing:.02em}
 .tc-sub{font-size:var(--t2);color:var(--text2);margin-top:4px;line-height:1.5}
@@ -164,8 +164,8 @@ input:focus,textarea:focus{border-color:var(--brand);background:#212A38}
 .modal-bg{position:fixed;inset:0;background:rgba(6,9,13,.72);z-index:200;display:none;align-items:flex-end;justify-content:center}
 .modal-bg.open{display:flex}
 .modal{background:var(--bg2);border:1px solid var(--border);border-top-color:var(--border2);border-radius:18px 18px 0 0;padding:20px 16px 26px;width:100%;max-width:480px;max-height:88vh;overflow-y:auto}
-.modal-title{font-size:var(--t4);font-weight:600;margin-bottom:15px}
-.modal-note{font-size:var(--t2);color:var(--text2);line-height:1.7;margin-bottom:13px}
+.modal-title{font-size:var(--t4);font-weight:600;margin-bottom:14px}
+.modal-note{font-size:var(--t2);color:var(--text2);line-height:1.7;margin-bottom:14px}
 </style>
 </head>
 <body>
@@ -175,7 +175,7 @@ input:focus,textarea:focus{border-color:var(--brand);background:#212A38}
   <div class="hdr">
     <div class="hdr-row">
       <span class="home-title">TRACKER</span>
-      <span class="ver">v6.2</span>
+      <span class="ver">v6.3</span>
       <span id="sync-dot" style="margin-left:auto;font-size:var(--t1);font-family:var(--mono);color:var(--accent)">● 저장됨</span>
     </div>
   </div>
@@ -183,7 +183,7 @@ input:focus,textarea:focus{border-color:var(--brand);background:#212A38}
     <div class="sec">내 종목</div>
     <div id="ticker-list"></div>
     <button class="btn-new" onclick="openModal()">+ 새 종목 추가</button>
-    <div style="text-align:center;margin-top:22px">
+    <div style="text-align:center;margin-top:28px">
       <button class="btn-ghost" onclick="openBackup()">데이터 백업 · 이전</button>
     </div>
   </div>
@@ -206,11 +206,10 @@ input:focus,textarea:focus{border-color:var(--brand);background:#212A38}
 
   <!-- 오늘 -->
   <div class="pg on" id="pg-table">
-    <div style="margin-bottom:26px"><span class="lbl">전날 종가</span><input type="number" id="lp" placeholder="135.47" step=".01" oninput="buildTbl()"></div>
+    <div class="sec" style="margin-top:10px">주문</div>
+    <div class="card"><span class="lbl">전날 종가</span><input type="number" id="lp" placeholder="135.47" step=".01" oninput="buildTbl()"></div>
 
-    <div id="tbl-out" style="display:none;padding-top:1px">
-
-      <div class="sec" style="margin-top:0">주문</div>
+    <div id="tbl-out" style="display:none">
       <div class="order-card" id="order-out"></div>
 
       <div class="gauge" id="gauge"></div>
@@ -222,10 +221,10 @@ input:focus,textarea:focus{border-color:var(--brand);background:#212A38}
       <div class="card">
         <span class="lbl">오늘 종가</span>
         <input type="number" id="cp" step=".01" placeholder="136.81" oninput="onCloseChange()">
-        <div id="fill-out" style="margin-top:11px"></div>
+        <div id="fill-out" style="margin-top:14px"></div>
       </div>
 
-      <details class="fold" style="margin-top:22px">
+      <details class="fold" style="margin-top:28px">
         <summary id="tbl-sum">전체 매수매도표</summary>
         <div class="fold-body">
           <div class="stabs">
@@ -243,7 +242,7 @@ input:focus,textarea:focus{border-color:var(--brand);background:#212A38}
         </div>
       </details>
     </div>
-    <div id="tbl-empty" class="card" style="text-align:center;color:var(--text3);padding:34px 20px;font-size:var(--t3)">전날 종가를 입력하세요</div>
+    <div id="tbl-empty" class="card" style="text-align:center;color:var(--text3);padding:30px 20px;font-size:var(--t3)">전날 종가를 입력하면 주문이 나와요</div>
   </div>
 
   <!-- 거래기록 -->
@@ -265,7 +264,7 @@ input:focus,textarea:focus{border-color:var(--brand);background:#212A38}
           <button class="btn btn-buy"  onclick="addTrade('ud','매수')">매수 체결</button>
           <button class="btn btn-sell" onclick="addTrade('ud','매도')">매도 체결</button>
         </div>
-        <button class="btn" id="ud-virtual-btn" style="display:none;margin-top:8px;padding:8px;font-size:var(--t2);background:#241a3a;border:1px solid #4a2a7a;color:#b58cff;width:100%" onclick="addTrade('ud','기록 매수')">기록 매수</button>
+        <button class="btn" id="ud-virtual-btn" style="display:none;margin-top:10px;padding:8px;font-size:var(--t2);background:#241a3a;border:1px solid #4a2a7a;color:#b58cff;width:100%" onclick="addTrade('ud','기록 매수')">기록 매수</button>
       </div>
       <div class="mets">
         <div class="met"><div class="met-lbl">보유수량</div><div class="met-val" id="ud-qty-d">—</div></div>
@@ -365,9 +364,9 @@ input:focus,textarea:focus{border-color:var(--brand);background:#212A38}
     </div>
     <button class="btn-new" onclick="exportData()">전체 백업 복사하기</button>
     <textarea id="import-text" placeholder="여기에 백업 내용을 붙여넣으세요" style="height:96px;font-size:var(--t2)"></textarea>
-    <button class="btn-new" style="margin-top:9px;background:transparent;color:#7FB0FF;border:1px solid rgba(74,144,255,.35)" onclick="importText()">붙여넣은 내용으로 복구</button>
-    <div id="backup-status" style="margin-top:8px;font-size:var(--t2);display:none"></div>
-    <div style="display:flex;gap:8px;margin-top:16px">
+    <button class="btn-new" style="margin-top:10px;background:transparent;color:#7FB0FF;border:1px solid rgba(74,144,255,.35)" onclick="importText()">붙여넣은 내용으로 복구</button>
+    <div id="backup-status" style="margin-top:10px;font-size:var(--t2);display:none"></div>
+    <div style="display:flex;gap:8px;margin-top:14px">
       <button class="btn-ghost" style="flex:1" onclick="downloadData()">파일로 저장</button>
       <button class="btn-ghost" style="flex:1" onclick="document.getElementById('import-file').click()">파일에서 복구</button>
     </div>
@@ -388,12 +387,12 @@ input:focus,textarea:focus{border-color:var(--brand);background:#212A38}
         <button class="stab" id="e-t-virt" onclick="setEditType('기록 매수')">기록 매수</button>
       </div>
     </div>
-    <div class="g2" style="margin-bottom:8px">
+    <div class="g2" style="margin-bottom:10px">
       <div><span class="lbl">날짜 (예: 7/23)</span><input type="text" id="e-date" placeholder="7/23"></div>
       <div><span class="lbl">단가 ($)</span><input type="number" id="e-price" step=".01"></div>
     </div>
-    <div style="margin-bottom:8px"><span class="lbl">수량 (주)</span><input type="number" id="e-qty" step="1"></div>
-    <div style="margin-bottom:16px"><span class="lbl">메모</span><input type="text" id="e-memo" placeholder="예: 이월"></div>
+    <div style="margin-bottom:10px"><span class="lbl">수량 (주)</span><input type="number" id="e-qty" step="1"></div>
+    <div style="margin-bottom:14px"><span class="lbl">메모</span><input type="text" id="e-memo" placeholder="예: 이월"></div>
     <button class="btn-new" onclick="saveTradeEdit()">저장</button>
     <button class="btn-new" style="background:transparent;color:var(--text2);border:1px solid var(--border);margin-bottom:0" onclick="closeEdit()">취소</button>
   </div>
@@ -402,11 +401,11 @@ input:focus,textarea:focus{border-color:var(--brand);background:#212A38}
 <div class="modal-bg" id="modal-bg" onclick="closeModal(event)">
   <div class="modal">
     <div class="modal-title">새 종목 추가</div>
-    <div class="g2" style="margin-bottom:8px">
+    <div class="g2" style="margin-bottom:10px">
       <div><span class="lbl">티커 (예: SOXL)</span><input type="text" id="m-ticker" placeholder="SOXL" style="text-transform:uppercase"></div>
       <div><span class="lbl">시작 시드 ($)</span><input type="number" id="m-seed" placeholder="15000"></div>
     </div>
-    <div class="g2" style="margin-bottom:16px">
+    <div class="g2" style="margin-bottom:14px">
       <div><span class="lbl">분할 수</span><input type="number" id="m-div" placeholder="15"></div>
       <div><span class="lbl">메모 (선택)</span><input type="text" id="m-memo" placeholder="3x 반도체"></div>
     </div>
@@ -863,7 +862,7 @@ function buildTbl(){
     if(udHeld<=0&&ddRank>0){
       icEl.innerHTML=`<div class="exhaust-badge exhaust-rich">
         <b>불완전 종료</b> — 평단형은 전량 매도됐는데 회차형 ${ddHeld}주(${ddRank}회차)가 남았어요.
-        <div style="margin-top:9px">
+        <div style="margin-top:10px">
           <button class="fill-btn" style="width:100%;padding:11px" onclick="startIncompleteClose()">똥 처리 — 평단형으로 이월 →</button>
         </div>
       </div>`;
@@ -934,10 +933,10 @@ function renderOrder(o){
   // 단계 안내 배너
   let banner='';
   if(!rich&&PR>=div){
-    banner=`<div style="background:#241a3a;border:1px solid #4a2a7a;color:#cbb0ff;border-radius:8px;padding:9px 12px;margin-bottom:9px;font-size:var(--t2);line-height:1.6">
+    banner=`<div style="background:#241a3a;border:1px solid #4a2a7a;color:#cbb0ff;border-radius:8px;padding:10px 12px;margin-bottom:10px;font-size:var(--t2);line-height:1.6">
       <b>${PR}/${div} 칸 — 매수 없음</b><br>매도만 진행해요. 매도가 나가면 칸이 줄고, 14 이하로 내려오면 매수가 다시 열려요.</div>`;
   } else if(!rich&&PR===div-1){
-    banner=`<div style="background:#2a2010;border:1px solid #5a4a20;color:var(--accent3);border-radius:8px;padding:9px 12px;margin-bottom:9px;font-size:var(--t2);line-height:1.6">
+    banner=`<div style="background:#2a2010;border:1px solid #5a4a20;color:var(--accent3);border-radius:8px;padding:10px 12px;margin-bottom:10px;font-size:var(--t2);line-height:1.6">
       <b>${PR}/${div} 칸 — 마지막 칸은 평단형 전용</b><br>회차형 매수는 걸지 않아요. 아래 매수는 평단형 것만이에요.</div>`;
   }
   let cutNote='';
@@ -1017,7 +1016,7 @@ function basisNote(C){
     평단 ≤ $${f.udBuyPrice.toFixed(2)} / ≥ $${f.lp.toFixed(2)}${f.udHeld>0?` (${f.udSellQty})`:''} · 회차 ≤ $${f.ddBuyPrice.toFixed(2)}
   </div>`;
 }
-const rollBtn=(C)=>`<button class="fill-btn" style="width:100%;margin-top:9px;background:var(--bg3);border:1px solid var(--brand);color:var(--brand);padding:11px" onclick="rollForward()">이 종가($${C.toFixed(2)})를 전날 종가로 넘기기 →</button>`;
+const rollBtn=(C)=>`<button class="fill-btn" style="width:100%;margin-top:10px;background:var(--bg3);border:1px solid var(--brand);color:var(--brand);padding:11px" onclick="rollForward()">이 종가($${C.toFixed(2)})를 전날 종가로 넘기기 →</button>`;
 function checkFills(){
   const out=document.getElementById('fill-out');
   if(!out)return;
@@ -1028,7 +1027,7 @@ function checkFills(){
   const f=fillCtx;
   let warn='';
   if(Math.abs(C-f.lp)<0.005){
-    warn='<div class="exhaust-badge exhaust-rich" style="margin-bottom:8px">전날 종가와 오늘 종가가 같아요. 이미 넘긴 상태면 정상이에요. 아직 안 넘겼는데 값이 같은 거라면 아래 <b>다시 기록</b>으로 넣어주세요.</div>';
+    warn='<div class="exhaust-badge exhaust-rich" style="margin-bottom:10px">전날 종가와 오늘 종가가 같아요. 이미 넘긴 상태면 정상이에요. 아직 안 넘겼는데 값이 같은 거라면 아래 <b>다시 기록</b>으로 넣어주세요.</div>';
   }
   // 평단형·회차형 매수는 하루 한 번만 — 오늘 이미 기록했으면 목록에서 제외한다.
   // (LOC는 하루 한 번 체결. 매도 후에도 보유÷Pot가 여전히 유효해서 조건이 다시 참이 되는데,
@@ -1299,7 +1298,7 @@ function renderTrades(track){
     if(_us2&&_virtN>0&&_cq>0){
     const el=document.getElementById(track+'-avg');
     if(el){
-      el.innerHTML=`$${_us2.realAvg.toFixed(2)}<span style="display:block;font-size:var(--t2);color:#b58cff;margin-top:2px">장부 $${_us2.bookAvg.toFixed(2)}</span>`;
+      el.innerHTML=`$${_us2.realAvg.toFixed(2)}<span style="display:block;font-size:var(--t2);color:#b58cff;margin-top:4px">장부 $${_us2.bookAvg.toFixed(2)}</span>`;
       el.className='met-val';
     }
   } else {
@@ -1418,7 +1417,7 @@ function renderCycleHistory(){
   if(hist.length){
     [...hist].reverse().forEach((h,idx)=>{
       const n=hist.length-idx;
-      html+=`<div class="card" style="margin-bottom:8px">
+      html+=`<div class="card" style="margin-bottom:10px">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
           <span style="font-size:var(--t2);font-weight:700;color:var(--text2)">사이클 ${n}</span>
           <span style="font-family:var(--mono);font-size:var(--t4);font-weight:500;color:${h.total>=0?'var(--accent)':'var(--accent2)'}">${h.total>=0?'+':'-'}$${Math.abs(h.total).toFixed(2)}</span>
@@ -1471,7 +1470,7 @@ function updateCfg(){
   document.getElementById('cfg-pr-d').textContent=PR+' / '+effDiv+(udVirt>0?` (가상${udVirt})`:'');
     const cs=cashState(t);
   const usedEl=document.getElementById('cfg-used');
-  usedEl.innerHTML=`$${cs.net.toFixed(0)}<span style="display:block;font-size:var(--t2);color:var(--text2);margin-top:2px">잔금 $${cs.cash.toFixed(0)}${t.seed>0?` · ${Math.round(cs.cash/t.seed*100)}%`:''}</span>`;
+  usedEl.innerHTML=`$${cs.net.toFixed(0)}<span style="display:block;font-size:var(--t2);color:var(--text2);margin-top:4px">잔금 $${cs.cash.toFixed(0)}${t.seed>0?` · ${Math.round(cs.cash/t.seed*100)}%`:''}</span>`;
   usedEl.className='met-val'+(cs.cash<0?' warn':'');
   const pe=document.getElementById('cfg-profit');
   pe.textContent=(tp>=0?'+':'-')+'$'+Math.abs(tp).toFixed(2);
