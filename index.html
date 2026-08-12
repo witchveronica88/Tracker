@@ -20,7 +20,8 @@
   --text:#EAEEF5;--text2:#8D97A8;--text3:#5B6577;
   --buy:#3A1520;--buy-b:#5A2438;   /* 매수 = 미국 증시 하락색(빨강) 계열 */
   --sell:#123A2C;--sell-b:#1E5A45; /* 매도 = 미국 증시 상승색(초록) 계열 */
-  --fs:1;
+  --fsu:.72;              /* 사용자가 고른 배율 */
+  --fs:var(--fsu);        /* 실제 적용 배율 (구역별로 덮어쓸 수 있음) */
   --t1:calc(12px*var(--fs));   /* 보조: 날짜·배지·단위 */
   --t2:calc(14px*var(--fs));   /* 라벨·캡션 */
   --t3:calc(16px*var(--fs));   /* 본문·목록·버튼 */
@@ -142,6 +143,7 @@ input:focus,textarea:focus{border-color:var(--brand);background:#212A38}
 .fill-none{font-size:var(--t2);color:var(--text3);text-align:center;padding:14px}
 
 /* ── 거래 목록 ── */
+#ud-list,#dd-list{--fs:max(var(--fsu),.85)}
 .tlog{display:grid;grid-template-columns:auto 1fr auto auto auto;gap:8px;padding:12px 0;border-bottom:1px solid rgba(40,50,63,.55);align-items:center}
 .tlog:last-child{border-bottom:none}
 .ttype{font-size:var(--t1);font-weight:700;padding:3px 7px;border-radius:5px;white-space:nowrap;letter-spacing:.02em}
@@ -173,7 +175,7 @@ input:focus,textarea:focus{border-color:var(--brand);background:#212A38}
   <div class="hdr">
     <div class="hdr-row">
       <span class="home-title">TRACKER</span>
-      <span class="ver">v6.0</span>
+      <span class="ver">v6.1</span>
       <span id="sync-dot" style="margin-left:auto;font-size:var(--t1);font-family:var(--mono);color:var(--accent)">● 저장됨</span>
     </div>
   </div>
@@ -341,9 +343,11 @@ input:focus,textarea:focus{border-color:var(--brand);background:#212A38}
     <div class="sec">화면 글자 크기</div>
     <div class="card">
       <div class="stabs" style="margin-bottom:10px">
-        <button class="stab" id="fs-s" onclick="setFS(.9)">작게</button>
-        <button class="stab" id="fs-m" onclick="setFS(1)">보통</button>
-        <button class="stab" id="fs-l" onclick="setFS(1.12)">크게</button>
+        <button class="stab" id="fs-1" style="font-size:13px;flex:1" onclick="setFS(.58)">A</button>
+        <button class="stab" id="fs-2" style="font-size:15px;flex:1" onclick="setFS(.65)">A</button>
+        <button class="stab" id="fs-3" style="font-size:17px;flex:1" onclick="setFS(.72)">A</button>
+        <button class="stab" id="fs-4" style="font-size:19px;flex:1" onclick="setFS(.80)">A</button>
+        <button class="stab" id="fs-5" style="font-size:22px;flex:1" onclick="setFS(.90)">A</button>
       </div>
     </div>
 
@@ -1270,7 +1274,7 @@ function renderTrades(track){
       const pnl=rowP[idx];
       const isCut=x.type==='손절';
       const row=document.createElement('div');row.className='tlog';
-      row.innerHTML=`<span class="ttype ${x.type==='매수'?'tt-buy':isCut?'tt-cut':'tt-profit'}">${x.type}</span><div><div style="font-family:var(--mono);font-size:var(--t2)">$${x.price.toFixed(2)} × ${x.qty}주</div><div style="font-size:var(--t1);color:var(--text3)">${x.date}${x.memo?` <span style="color:var(--accent3)">· ${x.memo}</span>`:''}</div></div><div class="tpnl ${pnl!==null?(pnl>=0?'pos':'neg'):''}">${pnl!==null?(pnl>=0?'+':'-')+'$'+Math.abs(pnl).toFixed(2):''}</div><button class="btn-del" style="color:var(--brand)" onclick="editTrade('${track}',${x.id})">✎</button><button class="btn-del" onclick="removeTrade('${track}',${x.id})">×</button>`;
+      row.innerHTML=`<span class="ttype ${x.type==='매수'?'tt-buy':isCut?'tt-cut':'tt-profit'}">${x.type}</span><div><div style="font-family:var(--mono);font-size:var(--t2)">$${x.price.toFixed(2)} × ${x.qty}주</div><div style="font-size:var(--t2);color:var(--text3)">${x.date}${x.memo?` <span style="color:var(--accent3)">· ${x.memo}</span>`:''}</div></div><div class="tpnl ${pnl!==null?(pnl>=0?'pos':'neg'):''}">${pnl!==null?(pnl>=0?'+':'-')+'$'+Math.abs(pnl).toFixed(2):''}</div><button class="btn-del" style="color:var(--brand)" onclick="editTrade('${track}',${x.id})">✎</button><button class="btn-del" onclick="removeTrade('${track}',${x.id})">×</button>`;
       list.appendChild(row);
     });
   } else {
@@ -1287,7 +1291,7 @@ function renderTrades(track){
       const qtyTxt=isVirt?(x.qty>0?` × ${x.qty}주(가상)`:' (가상)'):` × ${x.qty}주`;
       const memoTxt=_memo?` <span style="color:var(--accent3)">· ${_memo}</span>`:'';
       const row=document.createElement('div');row.className='tlog';
-      row.innerHTML=`<span class="ttype ${badgeCls}">${x.type}</span><div><div style="font-family:var(--mono);font-size:var(--t2)">$${x.price.toFixed(2)}${qtyTxt}</div><div style="font-size:var(--t1);color:var(--text3)">${x.date}${memoTxt}</div></div><div class="tpnl ${pnl!==null?(pnl>=0?'pos':'neg'):''}">${pnl!==null?(pnl>=0?'+':'-')+'$'+Math.abs(pnl).toFixed(2):''}</div><button class="btn-del" style="color:var(--brand)" onclick="editTrade('${track}',${x.id})">✎</button><button class="btn-del" onclick="removeTrade('${track}',${x.id})">×</button>`;
+      row.innerHTML=`<span class="ttype ${badgeCls}">${x.type}</span><div><div style="font-family:var(--mono);font-size:var(--t2)">$${x.price.toFixed(2)}${qtyTxt}</div><div style="font-size:var(--t2);color:var(--text3)">${x.date}${memoTxt}</div></div><div class="tpnl ${pnl!==null?(pnl>=0?'pos':'neg'):''}">${pnl!==null?(pnl>=0?'+':'-')+'$'+Math.abs(pnl).toFixed(2):''}</div><button class="btn-del" style="color:var(--brand)" onclick="editTrade('${track}',${x.id})">✎</button><button class="btn-del" onclick="removeTrade('${track}',${x.id})">×</button>`;
       list.appendChild(row);
     });
   }
@@ -1569,16 +1573,17 @@ function importData(input){
 
 // ── 화면 글자 크기 ──
 const FS_KEY='ui_fs';
+const FS_STEPS=[.58,.65,.72,.80,.90];
 function applyFS(v){
-  document.documentElement.style.setProperty('--fs', v);
-  ['fs-s','fs-m','fs-l'].forEach(id=>{const e=document.getElementById(id);if(e)e.classList.remove('on');});
-  const id = v<=.95 ? 'fs-s' : (v>=1.06 ? 'fs-l' : 'fs-m');
-  const e=document.getElementById(id); if(e)e.classList.add('on');
+  document.documentElement.style.setProperty('--fsu', v);
+  let best=0;
+  FS_STEPS.forEach((s,i)=>{ if(Math.abs(s-v)<Math.abs(FS_STEPS[best]-v)) best=i; });
+  FS_STEPS.forEach((s,i)=>{const e=document.getElementById('fs-'+(i+1));if(e)e.classList.toggle('on',i===best);});
 }
 function setFS(v){ try{localStorage.setItem(FS_KEY,String(v));}catch(_){} applyFS(v); }
 function initFS(){
-  let v=1;
-  try{ const s=parseFloat(localStorage.getItem(FS_KEY)); if(s>=0.9&&s<=1.12) v=s; }catch(_){}
+  let v=.72;
+  try{ const s=parseFloat(localStorage.getItem(FS_KEY)); if(s>=.55&&s<=.95) v=s; }catch(_){}
   applyFS(v);
 }
 
